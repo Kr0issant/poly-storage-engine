@@ -1,0 +1,12 @@
+[project]
+name = "poly-storage-engine-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13.5"
+dependencies = [
+    "fastapi>=0.121.1",
+    "opencv-python>=4.12.0.88",
+    "pymongo>=4.15.3",
+    "uvicorn>=0.38.0",
+]
