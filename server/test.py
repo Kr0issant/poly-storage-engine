@@ -52,8 +52,8 @@ coll = db["people"]
 
 fs = gridfs.GridFSBucket(db)
 
-# with open("countdown.mp4", "rb") as file:
-#     file_id = fs.upload_from_stream(filename="countdown2.mp4", source=file)
+# with open("test.py", "rb") as file:
+#     file_id = fs.upload_from_stream(filename="main.py", source=file, metadata={"keywords": ["script", "python"]})
 #     print(file_id)
 
 # with open("output.mp4", "wb") as f:
