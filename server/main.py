@@ -26,5 +26,5 @@ def root():
 async def upload_media(files: list[UploadFile] = File(...)):
     for file in files:
         file_bytes: bytes = await file.read()
-        file_id = await database.upload(file_name=file.filename, file_bytes=file_bytes, classify=True)
-        print(f"uploaded file: {file_id}")
+        file_info = await database.upload(file_name=file.filename, file_bytes=file_bytes, classify=True)
+        print(f"uploaded file: {file_info}")

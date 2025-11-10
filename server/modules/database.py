@@ -29,6 +29,7 @@ async def upload(file_name: str, file_bytes: bytes, classify: bool = False):
             raise ValueError("Invalid file type. File must be either an image or a video.")
         
     file_id = bucket.upload_from_stream(filename=file_name, source=file_bytes, metadata={"keywords": predictions})
+    add_file(file_id, predictions[0])
     return (file_id, predictions[0])
 
 
