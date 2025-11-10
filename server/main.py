@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, Request, Form, File
 from fastapi.middleware.cors import CORSMiddleware
 from modules import database
 
-app=FastAPI()
+app = FastAPI()
 
 origins = [
     "http://localhost",
@@ -25,5 +25,5 @@ def root():
 @app.post("/upload")
 async def upload_media(file: UploadFile = File(...)):
     file_bytes: bytes = await file.read()
-    file_id = await database.upload(file_name=file.filename, file_bytes=file_bytes)
-    print("uploaded file")
+    file_id = await database.upload(file_name=file.filename, file_bytes=file_bytes, classify=True)
+    print(f"uploaded file: {file_id}")

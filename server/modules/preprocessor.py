@@ -1,21 +1,26 @@
 import cv2
 import numpy as np
+from PIL import Image
+import os, io
 
-def fill_transparent_with_white(image):
-    img_array = np.array(image)
+def fill_transparent_with_white(image: Image):
+    img_array = np.array(image.convert('RGBA')) if image.mode != 'RGB' else np.array(image.convert('RGB'))
+
     if img_array.shape[-1] == 4:
-        img_cv = cv2.cvtColor(img_array, cv2.COLOR_RGBA2BGRA)
-        b, g, r, a = cv2.split(img_cv)
-        img_bgr = cv2.merge([b, g, r])
-        white = np.ones_like(img_bgr, dtype=img_bgr.dtype) * 255
+        r, g, b, a = cv2.split(img_array)
+        img_rgb = cv2.merge([r, g, b])
+        white = np.ones_like(img_rgb, dtype=img_rgb.dtype) * 255
         alpha_mask = a / 255.0
-        blended = (img_bgr * alpha_mask[:, :, np.newaxis] + white * (1 - alpha_mask)[:, :, np.newaxis])
+        blended = (img_rgb * alpha_mask[:, :, np.newaxis] + white * (1 - alpha_mask)[:, :, np.newaxis])
         return blended.astype(np.uint8)
     else:
-        return cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+        return np.array(image.convert('RGB'))
     
-def save_video_frames(video_path: str, split_count: int):
-    cap = cv2.VideoCapture(video_path)
+def get_video_frames(video_file: bytes, split_count: int):
+    with open("output.mp4", "wb") as f:
+        f.write(video_file)
+
+    cap = cv2.VideoCapture("output.mp4")
 
     if not cap.isOpened():
         print("Error: Unable to open video at the specified path")
@@ -29,14 +34,29 @@ def save_video_frames(video_path: str, split_count: int):
             for i in range(split_count):
                 frame_nums.append((i + 1) * split_interval)
 
-        for i, j in enumerate(frame_nums):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, j)
-            ret, frame = cap.read()
-            if ret:
-                cv2.imwrite(f"output_frame_{i}.jpg", frame)
+        frames = []
+
+        for i in frame_nums:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+            success, frame = cap.read()
+            if success:
+                frames.append(Image.fromarray(frame, 'RGB'))
             else:
-                print("Error: Unable to save image to the specified path")
+                raise PermissionError("Unable to save image to the specified path")
     
     cap.release()
     cv2.destroyAllWindows()
-    return
+    os.remove("output.mp4")
+
+    return frames
+
+def bytestream_to_img(img_file: bytes):
+    file = io.BytesIO(img_file)
+    return Image.open(file)
+
+# def img_to_bytestream(image):
+#     success, buffer = cv2.imencode(".jpg", image)
+#     if success:
+#         return buffer.tobytes()
+#     else:
+#         raise BufferError("Failed to buffer image into bytestream.")
