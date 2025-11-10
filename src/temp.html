@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Storage Ingestion</title>
+    <style>
+        /* --- CSS Styles --- */
+        :root {
+            --primary: #6366f1;      /* Modern Indigo */
+            --primary-hover: #4f46e5;
+            --success: #10b981;      /* Emerald Green */
+            --error: #ef4444;        /* Red */
+            --bg-main: #f8fafc;      /* Light Gray-Blue Background */
+            --bg-card: #ffffff;      /* White Card */
+            --text-dark: #1e293b;    /* Slate 800 */
+            --text-light: #64748b;   /* Slate 500 */
+            --border: #e2e8f0;       /* Slate 200 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-card {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 520px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label-title {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .input-field, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .input-field:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 85px;
+        }
+
+        .hint-text {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        /* Drag & Drop Zone */
+        .drop-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fdfdfd;
+        }
+
+        .drop-area:hover, .drop-area.active {
+            border-color: var(--primary);
+            background: #eef2ff; /* Very light indigo tint */
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        /* File List */
+        #file-list {
+            list-style: none;
+            margin-top: 1rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-main);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .remove-btn {
+            color: var(--error);
+            cursor: pointer;
+            font-weight: bold;
+            padding: 4px 8px;
+        }
+
+        .remove-btn:hover {
+            background-color: #fee2e2;
+            border-radius: 4px;
+        }
+
+        /* Progress Bar */
+        #progress-wrapper {
+            display: none;
+            margin: 1.5rem 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bg {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--success);
+            transition: width 0.3s ease-out;
+        }
+
+        /* Submit Button */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        /* Results */
+        #status-area {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .status-success {
+            background-color: #ecfdf5;
+            border-left: 4px solid var(--success);
+            color: #065f46;
+        }
+
+        .status-error {
+            background-color: #fef2f2;
+            border-left: 4px solid var(--error);
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <h2>Smart Storage Ingestion</h2>
+        <p class="subtitle">Upload mixed media and data. We'll organize it.</p>
+
+        <form id="smart-form">
+            <div class="form-group">
+                <label class="label-title">Files (Images, Video, JSON)</label>
+                <div id="drop-area" class="drop-area">
+                    <span class="drop-icon">📂</span>
+                    <strong>Drag & Drop files here</strong>
+                    <div style="color: var(--text-light); margin-top: 5px;">or click to browse</div>
+                </div>
+                <input type="file" id="file-input" multiple hidden>
+                <ul id="file-list"></ul>
+            </div>
+
+            <div class="form-group">
+                <label for="json-text" class="label-title">Raw Structured Data (Optional)</label>
+                <textarea id="json-text" class="input-field" placeholder="Paste JSON object or array here..."></textarea>
+                <div class="hint-text">Pasted text is treated as a .json file upload.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="metadata-text" class="label-title">Context / Tags (Optional)</label>
+                <input type="text" id="metadata-text" class="input-field" placeholder="e.g., 'Holiday 2025' or 'User Migration v2'">
+            </div>
+
+            <div id="progress-wrapper">
+                <div class="progress-info">
+                    <span>Uploading...</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bg">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn-primary">Process & Store Smartly</button>
+        </form>
+
+        <div id="status-area"></div>
+    </div>
+
+<script>
+        // --- State ---
+        const fileState = new DataTransfer();
+
+        // --- Elements ---
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const fileListUi = document.getElementById('file-list');
+        const jsonText = document.getElementById('json-text');
+        const metadataText = document.getElementById('metadata-text');
+        const form = document.getElementById('smart-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusArea = document.getElementById('status-area');
+        const progressWrapper = document.getElementById('progress-wrapper');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+
+        // --- Event Listeners ---
+        dropArea.addEventListener('click', () => fileInput.click());
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => { e.preventDefault(); dropArea.classList.add('active'); });
+        });
+        ['dragleave', 'dragend', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => { e.preventDefault(); dropArea.classList.remove('active'); });
+        });
+        dropArea.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            for (const file of files) fileState.items.add(file);
+            renderFileList();
+        }
+
+        function renderFileList() {
+            fileListUi.innerHTML = '';
+            Array.from(fileState.files).forEach((file, index) => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.innerHTML = `<span>${file.name} <small>(${formatSize(file.size)})</small></span><span class="remove-btn" onclick="removeFile(${index})">×</span>`;
+                fileListUi.appendChild(li);
+            });
+        }
+
+        window.removeFile = (index) => {
+            const newDt = new DataTransfer();
+            Array.from(fileState.files).forEach((file, i) => { if (i !== index) newDt.items.add(file); });
+            fileState.items.clear();
+            Array.from(newDt.files).forEach(f => fileState.items.add(f));
+            renderFileList();
+        };
+
+        function formatSize(bytes) {
+            if(bytes === 0) return '0 B';
+            const k = 1024; const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // --- Main Submission with Debugging ---
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            console.log("Starting upload process...");
+
+            const hasJson = jsonText.value.trim().length > 0;
+            if (fileState.files.length === 0 && !hasJson) {
+                alert("Please select files or enter JSON data first.");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            statusArea.style.display = 'none';
+            progressWrapper.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+
+            const formData = new FormData();
+
+            // DEBUG: Only sending ONE item to see if batching is the cause of the hang
+            if (fileState.files.length > 0) {
+                // Sending only the first file for stability test if multiple are selected
+                console.log("Appending file:", fileState.files[0].name);
+                formData.append('file', fileState.files[0]);
+                if (fileState.files.length > 1) console.warn("Warning: Multiple files selected, but only sending first one to prevent backend hang.");
+            } else if (hasJson) {
+                 try {
+                    console.log("Appending JSON as file");
+                    const content = JSON.stringify(JSON.parse(jsonText.value));
+                    formData.append('file', new Blob([content], {type: 'application/json'}), 'data.json');
+                } catch (err) {
+                    alert("Invalid JSON"); resetUi(); return;
+                }
+            }
+
+            // Append metadata (backend might ignore it, that's okay)
+            formData.append('context', metadataText.value.trim());
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:8000/upload', true);
+            
+            // TIMEOUT: Stop waiting after 30 seconds
+            xhr.timeout = 30000; 
+
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percent = (event.loaded / event.total) * 100;
+                    progressBar.style.width = percent + '%';
+                    progressPercent.textContent = Math.round(percent) + '%';
+                    if (percent === 100) console.log("Upload 100% complete. Waiting for server response...");
+                }
+            };
+
+            xhr.onload = function() {
+                console.log("Server responded with status:", xhr.status);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    statusArea.className = 'status-success';
+                    statusArea.innerHTML = '<strong>Success!</strong> Server accepted the data.';
+                    form.reset(); fileState.items.clear(); renderFileList();
+                } else {
+                    statusArea.className = 'status-error';
+                    statusArea.innerHTML = `<strong>Error ${xhr.status}:</strong> ${xhr.statusText || 'Server rejected data'}`;
+                }
+                statusArea.style.display = 'block';
+                resetUi();
+            };
+
+            xhr.onerror = function() {
+                console.error("Network Error");
+                showError('Network Error. Is backend running?');
+            };
+
+            xhr.ontimeout = function() {
+                console.error("Request Timed Out");
+                showError('Server took too long to respond (Timeout).');
+            };
+
+            function showError(msg) {
+                statusArea.className = 'status-error';
+                statusArea.innerHTML = `<strong>Error:</strong> ${msg}`;
+                statusArea.style.display = 'block';
+                resetUi();
+            }
+
+            xhr.send(formData);
+        });
+
+        function resetUi() {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Process & Store Smartly';
+            setTimeout(() => progressWrapper.style.display = 'none', 2000);
+        }
+    </script>
+</body>
+</html>

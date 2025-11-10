@@ -2,8 +2,11 @@ const fileInput = document.querySelector('#file-upload');
 const fileNameDisplay = document.querySelector('#file-name-display');
 
 fileInput.addEventListener('change', () => {
-    const fileName = fileInput.files[0] ? fileInput.files[0].name : 'No file chosen';
-    fileNameDisplay.textContent = fileName;
+    let fileNames = []
+    for (const file of fileInput.files) {
+        fileNames.push(file ? file.name : 'No file chosen');
+    }
+    fileNameDisplay.innerHTML = fileNames.join("<br>");
 });
 
 const form = document.querySelector('.upload-form');
@@ -18,7 +21,9 @@ form.addEventListener('submit', async (event) => {
     resultsContainer.style.display = 'none';
 
     const formData = new FormData();
-    formData.append('file', fileInput.files[0]);
+    for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append('files', fileInput.files[i]);
+    }
 
     try {
         const response = await fetch('http://localhost:8000/upload', {
