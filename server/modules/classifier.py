@@ -21,6 +21,6 @@ def get_clip_pipeline():
 def classify(img: Image):
     with open("modules/classification.json", "r") as data:
         clip = get_clip_pipeline()
-        label_list = json.load(data)["labels"]
+        label_list = json.load(data).keys()
         predictions = clip(Image.fromarray(img, 'RGB'), candidate_labels=label_list)
     return predictions[:3]

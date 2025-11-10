@@ -1,14 +1,15 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-import gridfs
 from modules import preprocessor, classifier
-import filetype
+import gridfs, filetype, json
 
 client = MongoClient("mongodb://localhost:27017/")
 
 db = client["test"]
 
 bucket = gridfs.GridFSBucket(db)
+
+filesystem = dict()
 
 async def upload(file_name: str, file_bytes: bytes, classify: bool = False):
     if classify:
@@ -53,5 +54,53 @@ def avg_predictions(predictions):
     )
     return avg_p[:3]
 
-def index_file_to_fs():
-    pass
+def sync_filesystem():
+    with open("modules/classification.json", "r") as data:
+        categories = json.load(data)
+
+    for file in bucket.find({}):
+        label = file["metadata"]["keywords"][0]
+        category = categories[label]
+        id = file["_id"]
+        
+        if category not in filesystem:
+            filesystem[category] = dict()
+        if label not in filesystem[category]:
+            filesystem[category][label] = []
+        if id not in filesystem[category][label]:
+            filesystem[category][label].append(id)
+
+    return filesystem
+
+def add_file(id: ObjectId, label: str):
+    with open("modules/classification.json", "r") as data:
+        categories = json.load(data)
+
+    category = categories[label]
+
+    if category not in filesystem:
+        filesystem[category] = dict()
+    if label not in filesystem[category]:
+        filesystem[category][label] = []
+    if id not in filesystem[category][label]:
+        filesystem[category][label].append(id)
+
+    return filesystem
+
+def delete_file(id: ObjectId):
+    with open("modules/classification.json", "r") as data:
+        categories = json.load(data)
+
+    for file in bucket.find({"_id": id}):
+        label = file["metadata"]["keywords"][0]
+        category = categories[label]
+
+    bucket.delete(id)
+
+    filesystem[category][label].remove(id)
+    if (len(filesystem[category][label]) == 0):
+        del filesystem[category][label]
+    if (len(filesystem[category].keys()) == 0):
+        del filesystem[category]
+
+    return filesystem
