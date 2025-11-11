@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Request, Form, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from modules import database
+import uuid
 
 app = FastAPI()
 
@@ -18,14 +19,40 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+upload_tasks = dict()
+
 @app.get("/")
 def root():
     return {"greeting": "Hello, useless customer"}
 
 @app.post("/upload")
-async def upload_media(files: list[UploadFile] = File(...)):
+async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile] = File(...)):
+    task_id = str(uuid.uuid4())
+
+    files_data = []
     for file in files:
-        file_bytes: bytes = await file.read()
-        file_info = await database.upload(file_name=file.filename, file_bytes=file_bytes, classify=True)
-        print(f"uploaded file: {file_info}")
-    return {"status": "completed"}
+        files_data.append((file.filename, await file.read()))
+        
+    upload_tasks[task_id] = {
+        "status": "pending",
+        "total_files": len(files_data),
+        "processed_files": 0,
+        "current_file": ""
+    }
+
+    background_tasks.add_task(
+        database.process_files_batch,
+        task_id = task_id,
+        files_data = files_data,
+        task_store = upload_tasks
+    )
+
+    return {"task_id": task_id}
+
+@app.get("/progress/{task_id}")
+async def get_progress(task_id: str):
+    task = upload_tasks.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    return task

@@ -2,6 +2,10 @@ const dropArea = document.querySelector(".drop-area");
 const fileInput = document.querySelector('#file-upload');
 const fileNameDisplay = document.querySelector('#file-name-display');
 
+const API_URL = "http://localhost:8000";
+
+const allowedTypes = ['image/', 'video/'];
+
 let files_list = [];
 
 dropArea.addEventListener('click', () => {
@@ -10,19 +14,25 @@ dropArea.addEventListener('click', () => {
 
 dropArea.addEventListener('dragover', (e) => {
   e.preventDefault();
-  dropArea.classList.add('hover');
+    dropArea.classList.add('hover');
 });
 
 dropArea.addEventListener('dragleave', () => {
-  dropArea.classList.remove('hover');
+    dropArea.classList.remove('hover');
 });
 
 dropArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropArea.classList.remove('hover');
-  const files = e.dataTransfer.files;
-  files_list.push(...files);
-  displayFileNames();
+    e.preventDefault();
+    dropArea.classList.remove('hover');
+    const files = e.dataTransfer.files;
+
+    for (const file of files) {
+        if (allowedTypes.some(category => file.type.startsWith(category))) {
+            files_list.push(file);
+        }
+    }
+
+    displayFileNames();
 });
 
 fileInput.addEventListener('change', () => {
@@ -56,6 +66,8 @@ const form = document.querySelector('.upload-form');
 const resultsContainer = document.querySelector('#results-container');
 const submitButton = document.querySelector('#submit-button');
 
+const progressBar = document.querySelector("#progress-bar");
+
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -70,44 +82,76 @@ form.addEventListener('submit', async (event) => {
         formData.append('files', files_list[i]);
     }
 
+    const config = {
+        onUploadProgress: (ProgressEvent) => {
+            const percentCompleted = Math.round((ProgressEvent.loaded * 100) / ProgressEvent.total);
+
+            progressBar.value = percentCompleted;
+            progressBar.textContent = `${percentCompleted}%`;
+        }
+    }
+
     try {
-        const response = await fetch('http://localhost:8000/upload', {
-            method: 'POST',
-            body: formData,
-        });
+        progressBar.classList.remove("hidden");
+        progressBar.classList.add("upload");
+
+        const response = await axios.post(`${API_URL}/upload`, formData, config);
+        const task_id = response.data.task_id;
+
+        progressBar.value = 0;
+        progressBar.classList.remove("upload");
+        progressBar.classList.add("process");
+        submitButton.textContent = 'Processing...';
+
+        await pollForProcessingProgress(task_id, 1000);
+    
+    } catch (error) {
+        resultsContainer.innerHTML = `<p style="color: #ff5353;">Error: ${error.message}</p>`;
+        resultsContainer.style.display = 'block';
 
         files_list = [];
         displayFileNames()
 
-        // if (response.ok) {
-        //     const data = await response.json();
-            
-        //     resultsContainer.innerHTML = '';
-        //     resultsContainer.innerHTML += `<h3>${data.filename}</h3>`;
-            
-        //     data.predictions.forEach(pred => {
-        //         const scorePercent = (pred.score * 100).toFixed(2);
-        //         resultsContainer.innerHTML += `
-        //             <div class="prediction">
-        //                 <span class="prediction-label">${pred.label}</span>
-        //                 <span class="prediction-score">${scorePercent}%</span>
-        //             </div>
-        //         `;
-        //     });
-            
-        //     resultsContainer.style.display = 'block';
-
-        // } else {
-        //     const errorData = await response.json();
-        //     resultsContainer.innerHTML = `<p style="color: red;">Error: ${errorData.detail || 'Failed to classify.'}</p>`;
-        //     resultsContainer.style.display = 'block';
-        // }
-    
-    } catch (error) {
-        resultsContainer.innerHTML = `<p style="color: #ff5353;">Network Error: ${error.message}</p>`;
-        resultsContainer.style.display = 'block';
+        submitButton.disabled = false;
+        submitButton.textContent = 'Upload Media';
     }
-
-    submitButton.disabled = false;
-    submitButton.textContent = 'Upload Media';
 });
+
+async function pollForProcessingProgress(task_id, poll_interval=1000) {
+    const response = await fetch(`${API_URL}/progress/${task_id}`);
+    
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
+    data = await response.json();
+
+    if (data["status"] == "pending" || data["status"] == "processing") {
+        progressBar.value = (100 * data["processed_files"]) / data["total_files"];
+
+        // const progress = `Processing: ${data.processed_files}/${data.total_files} files complete.`;
+        // const current = data.current_file ? `(Current: ${data.current_file})` : "";
+        
+        // if (processingStatus) { processingStatus.innerText = `${progress} ${current}`; }
+
+        setTimeout(() => { pollForProcessingProgress(task_id); }, poll_interval);
+    } else if (data["status"] == "complete") {
+        console.log("complete");
+        progressBar.value = 100;
+        submitButton.textContent = "Upload Complete";
+        setTimeout(() => {
+            progressBar.classList.add("hidden");
+            progressBar.classList.remove("process");
+
+            files_list = [];
+            displayFileNames()
+
+            submitButton.disabled = false;
+            submitButton.textContent = 'Upload Media';
+            return;
+        }, 1500);
+    } else if (data["status"] == "error") {
+        progressBar.classList.remove("process");
+        progressBar.classList.add("error");
+        throw new Error(`Something went wrong while processing file: ${data["current_file"]}`);
+    }
+}

@@ -11,11 +11,12 @@ bucket = gridfs.GridFSBucket(db)
 
 filesystem = dict()
 
-async def upload(file_name: str, file_bytes: bytes, classify: bool = False):
+def upload_sync(file_name: str, file_bytes: bytes, classify: bool = False):
     if classify:
         type = filetype.guess(file_bytes)
         if type is None:
-            raise ValueError("Invalid file.")
+            print(f"Error: Invalid file {file_name}")
+            return
         elif type.mime.startswith("image/"):
             image = preprocessor.fill_transparent_with_white(preprocessor.bytestream_to_img(file_bytes))
             predictions = classifier.classify(image)
@@ -26,11 +27,32 @@ async def upload(file_name: str, file_bytes: bytes, classify: bool = False):
                 predictions.append(classifier.classify(preprocessor.fill_transparent_with_white(frame)))
             predictions = avg_predictions(predictions)
         else:
-            raise ValueError("Invalid file type. File must be either an image or a video.")
+            print(f"Error: Invalid file type {file_name}")
+            return
         
     file_id = bucket.upload_from_stream(filename=file_name, source=file_bytes, metadata={"keywords": predictions})
     add_file(file_id, predictions[0]["label"])
+
+    print(f"Successfully processed and uploaded: {file_name}, ID: {file_id}")
     return (file_id, predictions[0])
+
+def process_files_batch(task_id: str, files_data: list, task_store: dict):
+    total = len(files_data)
+    task_store[task_id]["status"] = "processing"
+
+    try:
+        for (file_name, file_bytes) in files_data:
+            task_store[task_id]["current_file"] = file_name
+            upload_sync(file_name=file_name, file_bytes=file_bytes, classify=True)
+            task_store[task_id]["processed_files"] += 1
+        
+        task_store[task_id]["status"] = "complete"
+        task_store[task_id]["current_file"] = ""
+        
+    except Exception as e:
+        print(f"Task {task_id} failed: {e}")
+        task_store[task_id]["status"] = "error"
+        task_store[task_id]["error_message"] = str(e)
 
 def avg_predictions(predictions):
     category_scores = dict()
