@@ -63,6 +63,10 @@ async def get_progress(task_id: str):
     return task
 
 # Explorer
+@app.get("/explorer")
+async def explorer_base():
+    return
+
 @app.get("/explorer/{type}")
 async def fetch_type(type: str):
     return db.get_dir([type])
@@ -80,7 +84,7 @@ async def fetch_item(type: str, category: str, subcategory:str, id: str):
     return db.get_dir([type, category, subcategory, id])
 
 # Searching
-@app.get("/search?query={query}")
+@app.get("/search")
 async def fetch_query(query:str):
     query_list = search.get_keywords_from_query(query=query)
     search_results = db.get_results_from_keywords(query_list)

@@ -23,8 +23,7 @@ class Search():
                 sum = element["metadata"]["keywords"][x]["score"]
         return sum
 
-
-    def shorten_data(search_results, query):
+    def shorten_data(self, search_results, query):
         directory_list = []
         for result in search_results:
             element = {

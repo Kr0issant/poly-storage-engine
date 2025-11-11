@@ -36,7 +36,11 @@ class Database():
                 print(f"Error: Invalid file type {file_name}")
                 return
             
-        file_id = self.bucket.upload_from_stream(filename=file_name, source=file_bytes, metadata={"keywords": predictions})
+        file_id = self.bucket.upload_from_stream(filename=file_name, source=file_bytes, metadata={
+            "keywords": predictions,
+            "category":self.categories[predictions[0]["label"]], 
+            "subcategory":predictions[0]["label"]
+        })
 
         print(f"Successfully processed and uploaded: {file_name}, ID: {file_id}")
         return (file_id, predictions[0])
@@ -73,11 +77,11 @@ class Database():
         directory_title = []
         directory_list = []
         
-        if type[3]:         #IDs
+        if len(type) == 4:         #IDs
             directory_title = type[3]
             directory_list =  self.get_file(type[3])
             
-        elif type[2]:       #Subcategory
+        elif len(type) == 3:       #Subcategory
             directory_title = type[2]
             search_results = self.fs_files.find({
                 "metadata.category": type[1],
@@ -90,23 +94,23 @@ class Database():
                 }
                 directory_list.append(element)
 
-        elif type[1]:       #Category
+        elif len(type) == 2:       #Category
             directory_title = type[1]
-            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category"==type[1]})
+            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category": type[1]})
             for result in search_results:
                 element = {
-                    "title":result['filename'],
+                    "title":result,
                     "url": f"media/{type[1]}/{result}"
                     }
                 
                 directory_list.append(element)
 
-        elif type[0] and type[0]=="media":      #Media
+        elif len(type) == 1 and type[0]=="media":      #Media
             directory_title = "media"
             search_results = self.fs_files.distinct("metadata.category")
             for result in search_results:
                 element = {
-                    "title":result['filename'],
+                    "title":result,
                     "url": f"media/{result}"
                     }
                 

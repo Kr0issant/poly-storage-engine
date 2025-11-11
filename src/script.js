@@ -109,11 +109,19 @@ form.addEventListener('submit', async (event) => {
         resultsContainer.innerHTML = `<p style="color: #ff5353;">Error: ${error.message}</p>`;
         resultsContainer.style.display = 'block';
 
-        files_list = [];
-        displayFileNames()
+        progressBar.classList.remove("upload");
+        progressBar.classList.add("error");
+        
+        setTimeout(() => {
+            files_list = [];
+            displayFileNames()
 
-        submitButton.disabled = false;
-        submitButton.textContent = 'Upload Media';
+            submitButton.disabled = false;
+            submitButton.textContent = 'Upload Media';
+            progressBar.classList.remove("error");
+            progressBar.classList.add("hidden");
+            resultsContainer.style.display = 'none';
+        }, 1500);        
     }
 });
 

@@ -127,9 +127,9 @@ body {
 #results-container {
     background-color: #F5EFE6;
     margin-top: 2rem;
-    padding: 1.5rem;
+    padding: 0.3rem 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     text-align: left;
 }
 #results-container h3 {
