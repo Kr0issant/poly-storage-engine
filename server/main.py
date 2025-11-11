@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from modules import database
+from modules.search import Search
 import uuid
 
 app = FastAPI()
@@ -20,6 +21,9 @@ app.add_middleware(
 )
 
 upload_tasks = dict()
+
+db = database.Database()
+search = Search()
 
 @app.get("/")
 def root():
@@ -41,7 +45,7 @@ async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile
     }
 
     background_tasks.add_task(
-        database.process_files_batch,
+        db.process_files_batch,
         task_id = task_id,
         files_data = files_data,
         task_store = upload_tasks
@@ -49,6 +53,7 @@ async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile
 
     return {"task_id": task_id}
 
+# Progress Tracking
 @app.get("/progress/{task_id}")
 async def get_progress(task_id: str):
     task = upload_tasks.get(task_id)
@@ -56,3 +61,32 @@ async def get_progress(task_id: str):
         raise HTTPException(status_code=404, detail="Task not found")
     
     return task
+
+# Explorer
+@app.get("/explorer/{type}")
+async def fetch_type(type: str):
+    return db.get_dir([type])
+
+@app.get("/explorer/{type}/{category}")
+async def fetch_cat(type: str, category: str):
+    return db.get_dir([type, category])
+
+@app.get("/explorer/{type}/{category}/{subcategory}")
+async def fetch_subcat(type: str, category: str, subcategory: str):
+    return db.get_dir([type, category, subcategory])
+
+@app.get("/explorer/{type}/{category}/{subcategory}/{id}")
+async def fetch_item(type: str, category: str, subcategory:str, id: str):
+    return db.get_dir([type, category, subcategory, id])
+
+# Searching
+@app.get("/search?query={query}")
+async def fetch_query(query:str):
+    query_list = search.get_keywords_from_query(query=query)
+    search_results = db.get_results_from_keywords(query_list)
+    search_results = search.sort_by_score(search_results, query_list)
+    return search.shorten_data(search_results, query)
+
+@app.get("/search/{id}")
+async def fetch_item_by_id(id:str):
+    db.get_file(id)

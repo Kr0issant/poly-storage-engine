@@ -24,7 +24,7 @@ class Database():
         ])
         self.fs_files.create_index("metadata.keywords['labels']")
 
-    def get_file(self, id):
+    def get_file(self, id: ObjectId):
         self.fs_files.find("_id"==id)
         pass
     
@@ -45,7 +45,7 @@ class Database():
             for result in search_results:
                 element = {
                     "title":result['filename'],
-                    "url": f"media/{type[1]}/{type[2]}/{result["_id"]}"
+                    "url": f"media/{type[1]}/{type[2]}/{str(result["_id"])}"
                 }
                 directory_list.append(element)
 
@@ -86,6 +86,10 @@ class Database():
 
     def rename_file(self, id: ObjectId, new_name: str):
         self.bucket.rename(id, new_name)
+        return
+    
+    def delete_file(self, id: ObjectId):
+        self.bucket.delete(id)
         return
     
     async def upload(self, file_name: str, file_bytes: bytes, classify: bool = False):
