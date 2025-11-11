@@ -28,3 +28,4 @@ async def upload_media(files: list[UploadFile] = File(...)):
         file_bytes: bytes = await file.read()
         file_info = await database.upload(file_name=file.filename, file_bytes=file_bytes, classify=True)
         print(f"uploaded file: {file_info}")
+    return {""}

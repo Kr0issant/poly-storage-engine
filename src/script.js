@@ -1,13 +1,56 @@
+const dropArea = document.querySelector(".drop-area");
 const fileInput = document.querySelector('#file-upload');
 const fileNameDisplay = document.querySelector('#file-name-display');
 
-fileInput.addEventListener('change', () => {
-    let fileNames = []
-    for (const file of fileInput.files) {
-        fileNames.push(file ? file.name : 'No file chosen');
-    }
-    fileNameDisplay.innerHTML = fileNames.join("<br>");
+let files_list = [];
+
+dropArea.addEventListener('click', () => {
+    fileInput.click();
+})
+
+dropArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropArea.classList.add('hover');
 });
+
+dropArea.addEventListener('dragleave', () => {
+  dropArea.classList.remove('hover');
+});
+
+dropArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropArea.classList.remove('hover');
+  const files = e.dataTransfer.files;
+  files_list.push(...files);
+  displayFileNames();
+});
+
+fileInput.addEventListener('change', () => {
+    files_list.push(...fileInput.files)
+    displayFileNames();
+});
+
+function displayFileNames() {
+    fileNameDisplay.innerHTML = '';
+    
+    files_list.forEach((file, index) => {
+        const fileElement = document.createElement("p");
+        fileElement.textContent = `${index}. ${file.name}`;
+        fileElement.classList.add("file-item");
+
+        fileElement.addEventListener('click', () => { removeFile(index); });
+
+        fileNameDisplay.appendChild(fileElement);
+    });
+    
+    if (files_list.length == 0) fileNameDisplay.innerHTML = "No file chosen";
+}
+
+function removeFile(index) {
+    files_list.splice(index, 1);
+    displayFileNames();
+    fileInput.value = '';
+}
 
 const form = document.querySelector('.upload-form');
 const resultsContainer = document.querySelector('#results-container');
@@ -16,13 +59,15 @@ const submitButton = document.querySelector('#submit-button');
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
+    if (files_list.length == 0) return;
+
     submitButton.disabled = true;
     submitButton.textContent = 'Uploading...';
     resultsContainer.style.display = 'none';
 
     const formData = new FormData();
-    for (let i = 0; i < fileInput.files.length; i++) {
-        formData.append('files', fileInput.files[i]);
+    for (let i = 0; i < files_list.length; i++) {
+        formData.append('files', files_list[i]);
     }
 
     try {
@@ -56,7 +101,7 @@ form.addEventListener('submit', async (event) => {
         // }
     
     } catch (error) {
-        resultsContainer.innerHTML = `<p style="color: red;">Network Error: ${error.message}</p>`;
+        resultsContainer.innerHTML = `<p style="color: #ff5353;">Network Error: ${error.message}</p>`;
         resultsContainer.style.display = 'block';
     }
 

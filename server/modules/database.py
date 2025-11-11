@@ -32,7 +32,6 @@ async def upload(file_name: str, file_bytes: bytes, classify: bool = False):
     add_file(file_id, predictions[0])
     return (file_id, predictions[0])
 
-
 def avg_predictions(predictions):
     category_scores = dict()
     size = len(predictions)
@@ -105,3 +104,7 @@ def delete_file(id: ObjectId):
         del filesystem[category]
 
     return filesystem
+
+def rename_file(id: ObjectId, new_name: str):
+    bucket.rename(id, new_name)
+    return
