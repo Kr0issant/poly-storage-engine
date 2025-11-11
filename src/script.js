@@ -76,6 +76,9 @@ form.addEventListener('submit', async (event) => {
             body: formData,
         });
 
+        files_list = [];
+        displayFileNames()
+
         // if (response.ok) {
         //     const data = await response.json();
             

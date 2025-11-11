@@ -50,7 +50,8 @@
     "moon": "Nature",
     "motorcycle": "Transportation",
     "mountain": "Nature",
-    "music": "Misc",
+    "movie": "Entertainment",
+    "music": "Entertainment",
     "nature": "Information",
     "night": "Nature",
     "ocean": "Nature",
@@ -90,7 +91,7 @@
     "underwater": "Nature",
     "urban": "Places",
     "vegetable": "Food and Drink",
-    "video game": "Tech",
+    "video game": "Entertainment",
     "weather": "Nature",
     "wildlife": "Animals"
 }
