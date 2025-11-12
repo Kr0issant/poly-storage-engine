@@ -144,6 +144,27 @@ class Database():
         self.bucket.delete(id)
         return
     
+    # JSON
+    def upload_schema(self,collection_name, generated_schema:dict):
+        if self.existing_schema == None:
+            schema_doc = {
+                "collection_name": collection_name,
+                "schema_stucture": generated_schema
+            }
+            result = self.db["schemas"].insert_one(schema_doc)
+            return result
+
+    def existing_schema(self, incoming_schema):
+        existing_schema_doc = self.db.schemas.find_one({
+            "schema_structure": incoming_schema
+        })
+        if existing_schema_doc:
+            collection_name = existing_schema_doc['collection_name']
+            return collection_name
+
+        else:
+            return None
+    
 def avg_predictions(predictions):
     category_scores = dict()
     size = len(predictions)

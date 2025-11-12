@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from modules import database
+from modules import database, json_handler
 from modules.search import Search
 import uuid
 
@@ -23,6 +23,7 @@ app.add_middleware(
 upload_tasks = dict()
 
 db = database.Database()
+json_db = json_handler.JSONHandler()
 search = Search()
 
 @app.get("/")
@@ -90,3 +91,8 @@ async def fetch_query(query:str):
 @app.get("/fetch-id/{id}")
 async def fetch_item_by_id(id:str):
     db.get_file(id)
+
+@app.get("/explorer/json/{path}")
+async def get_json_path(path:str):
+    # json_db
+    pass
