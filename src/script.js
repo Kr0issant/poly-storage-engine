@@ -4,6 +4,7 @@ const fileNameDisplay = document.querySelector('#file-name-display');
 
 const API_URL = "http://localhost:8000";
 
+// Uploading
 const allowedTypes = ['image/', 'video/'];
 
 let files_list = [];
@@ -125,6 +126,7 @@ form.addEventListener('submit', async (event) => {
     }
 });
 
+// Processing
 async function pollForProcessingProgress(task_id, poll_interval=1000) {
     const response = await fetch(`${API_URL}/progress/${task_id}`);
     
@@ -146,6 +148,7 @@ async function pollForProcessingProgress(task_id, poll_interval=1000) {
         console.log("complete");
         progressBar.value = 100;
         submitButton.textContent = "Upload Complete";
+        getFilesystemAtUrl(currentUrl);
         setTimeout(() => {
             progressBar.classList.add("hidden");
             progressBar.classList.remove("process");
@@ -163,3 +166,53 @@ async function pollForProcessingProgress(task_id, poll_interval=1000) {
         throw new Error(`Something went wrong while processing file: ${data["current_file"]}`);
     }
 }
+
+// Searching
+const searchForm = document.querySelector("#search-form");
+const searchBar = document.querySelector("#search-bar");
+
+searchForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    
+    let response = await fetch(`${API_URL}/search?query=${searchBar.value}`);
+    response = await response.json();
+
+    console.log(response);
+
+    searchBar.value = "";
+});
+
+// 
+
+// File Explorer
+const filesystem = document.querySelector(".filesystem");
+const mediaBackBtn = document.querySelector(".media-back-btn");
+
+let currentUrl = "media";
+
+mediaBackBtn.addEventListener("click", () => {
+    if (currentUrl != "media") {
+        const path = currentUrl.split("/");
+        currentUrl = path.slice(0, -1).join("/");
+        getFilesystemAtUrl(currentUrl);
+    }
+});
+
+async function getFilesystemAtUrl(url="media") {
+    let response = await fetch(`${API_URL}/explorer/${url}`);
+    response = await response.json();
+
+    currentUrl = url;
+
+    filesystem.innerHTML = "";
+    for (let obj of response["list"]) {
+        const div = document.createElement("div");
+        div.classList.add(obj["type"]);
+        div.textContent = obj["title"].replaceAll("_", " ");
+        div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
+
+        filesystem.appendChild(div);
+    }
+}
+
+// getFilesystemAtUrl(currentUrl);

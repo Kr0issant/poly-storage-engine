@@ -1,23 +1,114 @@
-body {
+* {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+body {
     background-color: #E8DFCA;
-    display: flex;
-    justify-content: flex-end;
-    
     min-height: 90vh;
     margin: 0;
     padding: 2rem;
+    padding-top: 1rem;
 }
-.container {
+
+.view-options {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 1rem;
+}
+.view-options > button {
+    font-size: 1.75rem;
+    font-weight: 600;
+    background-color: transparent;
+    border: none
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+#search-bar {
+    font-size: 1rem;
+    border-radius: 15px;
+    padding: 10px;
+    min-width: 30vw;
+    background-color: #F5EFE6;
+}
+#search-btn {
+    padding: 12px 15px;
+    border-radius: 15px;
+    color: #eceef3;
+    background-color: #6D94C5;
+}
+#search-btn:hover {
+    background-color: #688dbb;
+    cursor: pointer;
+}
+
+.main-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+}
+
+.explorer {
     width: 100%;
-    max-width: 450px;
+    height: 83vh;
+    background-color: #F5EFE6;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px #6565650d;
+    padding: 0.5rem 2rem;
+    /* overflow: auto; */
 }
+.media {
+    height: 83%;
+}
+.filesystem {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: auto;
+    user-select: none;
+}
+.filesystem > div {
+    box-shadow: 0 4px 12px #6565650d;
+}
+.filesystem .folder {
+    width: 90%;
+    border-radius: 5px;
+    background-color: #E8DFCA;
+    transition: background-color 0.2s;
+    padding: 12px;
+}
+.filesystem .folder:hover {
+    background-color: #e2dac6;
+}
+.filesystem .image, .filesystem .video {
+    width: 90%;
+    border-radius: 5px;
+    background-color: #d6d1c4;
+    transition: background-color 0.2s;
+    padding: 12px;
+}
+.filesystem .image:hover, .filesystem .video:hover {
+    background-color: #cdcac0;
+}
+.media-back-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
 .upload-form {
     background-color: #F5EFE6;
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 12px #6565650d;
     text-align: center;
+    width: 100%;
+    max-width: 350px;
 }
 .upload-form h2 {
     margin-top: 0; color: #3b3f44;
@@ -102,9 +193,6 @@ body {
 #progress-bar::-moz-progress-bar {
     border-radius: 5px;
 }
-#progress-bar.hidden {
-    display: none
-}
 #progress-bar.upload::-webkit-progress-value {
     background-color: #a6e17a;
 }
@@ -136,4 +224,8 @@ body {
     margin-top: 0;
     border-bottom: 1px solid #eee;
     padding-bottom: 0.5rem;
+}
+
+.hidden {
+    display: none
 }

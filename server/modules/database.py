@@ -24,9 +24,11 @@ class Database():
                 print(f"Error: Invalid file {file_name}")
                 return
             elif type.mime.startswith("image/"):
+                type = "image"
                 image = preprocessor.fill_transparent_with_white(preprocessor.bytestream_to_img(file_bytes))
                 predictions = classifier.classify(image)
             elif type.mime.startswith("video/"):
+                type = "video"
                 frames = preprocessor.get_video_frames(file_bytes, 5)
                 predictions = []
                 for frame in frames:
@@ -38,8 +40,9 @@ class Database():
             
         file_id = self.bucket.upload_from_stream(filename=file_name, source=file_bytes, metadata={
             "keywords": predictions,
-            "category":self.categories[predictions[0]["label"]], 
-            "subcategory":predictions[0]["label"]
+            "category": self.categories[predictions[0]["label"]], 
+            "subcategory": predictions[0]["label"],
+            "type": type
         })
 
         print(f"Successfully processed and uploaded: {file_name}, ID: {file_id}")
@@ -89,10 +92,12 @@ class Database():
             })
             for result in search_results:
                 element = {
-                    "title":result['filename'],
-                    "url": f"media/{type[1]}/{type[2]}/{str(result["_id"])}"
+                    "title": result["filename"],
+                    "url": f"media/{type[1]}/{type[2]}/{str(result["_id"])}",
+                    "type": result["metadata"]["type"]
                 }
                 directory_list.append(element)
+            
 
         elif len(type) == 2:       #Category
             directory_title = type[1]
@@ -100,8 +105,9 @@ class Database():
             for result in search_results:
                 element = {
                     "title":result,
-                    "url": f"media/{type[1]}/{result}"
-                    }
+                    "url": f"media/{type[1]}/{result}",
+                    "type": "folder"
+                }
                 
                 directory_list.append(element)
 
@@ -111,15 +117,16 @@ class Database():
             for result in search_results:
                 element = {
                     "title":result,
-                    "url": f"media/{result}"
-                    }
+                    "url": f"media/{result}",
+                    "type": "folder"
+                }
                 
                 directory_list.append(element)
         
         return {
-                "title":directory_title,
-                "list":directory_list
-            }
+            "title":directory_title,
+            "list":directory_list,
+        }
     
     def get_results_from_keywords(self, keywords:list):
         search_results = self.fs_files.find({
