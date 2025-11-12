@@ -215,4 +215,4 @@ async function getFilesystemAtUrl(url="media") {
     }
 }
 
-// getFilesystemAtUrl(currentUrl);
+getFilesystemAtUrl(currentUrl);
