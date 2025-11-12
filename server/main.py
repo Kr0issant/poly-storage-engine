@@ -61,7 +61,10 @@ async def get_progress(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    return task
+    if task["status"] == "complete" or task["status"] == "error":
+        return upload_tasks.pop(task_id)
+    else:
+        return task
 
 # Explorer
 @app.get("/explorer/{type}")

@@ -81,8 +81,8 @@ class Database():
         directory_list = []
         
         if len(type) == 4:         #IDs
-            directory_title = type[3]
-            directory_list =  self.get_file(type[3])
+            directory_title = self.get_file(ObjectId(type[3]))["filename"]
+            directory_list =  self.get_file(ObjectId(type[3]))
             
         elif len(type) == 3:       #Subcategory
             directory_title = type[2]

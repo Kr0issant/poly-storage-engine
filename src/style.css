@@ -18,7 +18,8 @@ body {
     font-size: 1.75rem;
     font-weight: 600;
     background-color: transparent;
-    border: none
+    border: none;
+    cursor: pointer;
 }
 
 .search-container {

@@ -182,7 +182,30 @@ searchForm.addEventListener("submit", async (event) => {
     searchBar.value = "";
 });
 
-// 
+// View Options
+const mediaBtn = document.querySelector("#view-media-btn");
+const sqlBtn = document.querySelector("#view-sql-btn");
+const nosqlBtn = document.querySelector("#view-nosql-btn");
+
+const mediaDiv = document.querySelector(".media-div");
+const sqlDiv = document.querySelector(".sql-div");
+const nosqlDiv = document.querySelector(".nosql-div");
+
+mediaBtn.addEventListener("click", () => {
+    mediaDiv.classList.remove("hidden");
+    sqlDiv.classList.add("hidden");
+    nosqlDiv.classList.add("hidden");
+});
+sqlBtn.addEventListener("click", () => {
+    mediaDiv.classList.add("hidden");
+    sqlDiv.classList.remove("hidden");
+    nosqlDiv.classList.add("hidden");
+});
+nosqlBtn.addEventListener("click", () => {
+    mediaDiv.classList.add("hidden");
+    sqlDiv.classList.add("hidden");
+    nosqlDiv.classList.remove("hidden");
+});
 
 // File Explorer
 const filesystem = document.querySelector(".filesystem");
