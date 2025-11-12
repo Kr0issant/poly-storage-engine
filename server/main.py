@@ -1,6 +1,8 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks, Request, Response
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from modules import database, json_handler
+from bson.objectid import ObjectId
 from modules.search import Search
 import uuid
 
@@ -81,7 +83,10 @@ async def fetch_subcat(type: str, category: str, subcategory: str):
 
 @app.get("/explorer/{type}/{category}/{subcategory}/{id}")
 async def fetch_item(type: str, category: str, subcategory:str, id: str):
-    return db.get_dir([type, category, subcategory, id])
+    item_details =  db.get_dir([type, category, subcategory, id])
+    item_details["list"][0]["stream_url"] = f"media-stream/{id}"
+
+    return item_details
 
 # Searching
 @app.get("/search")
@@ -99,3 +104,73 @@ async def fetch_item_by_id(id:str):
 async def get_json_path(path:str):
     # json_db
     pass
+
+# Media Streaming
+@app.get("/media-stream/{file_id}")
+async def stream_media_file(file_id: str, request: Request):
+    try:
+        object_id = ObjectId(file_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid File ID Format")
+    
+    metadata = db.get_file(object_id)
+    
+    if not metadata:
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    content_type = metadata.get("metadata", {}).get("type", "application/octet-stream")
+
+    # Images
+    if content_type == "image":
+        stream = db.bucket.open_download_stream(object_id)
+        if stream:
+            return Response(content=stream.read(), media_type=f"image/{metadata['filename'].split(".")[-1]}")
+        else:
+            raise HTTPException(status_code=500, detail="Could not open image stream")
+    
+    # Videos
+    elif content_type == "video":
+        file_size = metadata["length"]
+        range_header = request.headers.get("range")
+
+        file_extension = db.get_file(object_id)["filename"].split(".")[-1]
+
+        if range_header:
+            try:
+                byte1, byte2 = range_header.replace("bytes=", "").split("-")
+                start = int(byte1)
+                end = int(byte2) if byte2 else file_size - 1
+            except ValueError:
+                raise HTTPException(status_code=416, detail="Invalid Range header")
+            
+            chunk_size = end - start + 1
+
+            def file_generator(start, end):
+                with db.bucket.open_download_stream(object_id) as stream:
+                    stream.seek(start)
+                    while True:
+                        chunk = stream.read(chunk_size)
+                        if not chunk:
+                            break
+                        yield chunk
+            
+            headers = {
+                'Content-Range': f'bytes {start}-{end}/{file_size}',
+                'Accept-Ranges': 'bytes',
+                'Content-Length': str(chunk_size),
+                'Content-Type': f'video/{file_extension}'
+            }
+            return StreamingResponse(file_generator(start, end), status_code=206, headers=headers)
+
+        else:
+            def file_generator_full():
+                with db.bucket.open_download_stream(object_id) as stream:
+                    yield from stream
+
+            headers = {
+                'Content-Type': f'video/{file_extension}',
+                'Content-Length': str(file_size)
+            }
+            return StreamingResponse(file_generator_full(), headers=headers)
+        
+    raise HTTPException(status_code=415, detail="Unsupported media type for streaming")

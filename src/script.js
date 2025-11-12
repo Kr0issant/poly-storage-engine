@@ -226,15 +226,40 @@ async function getFilesystemAtUrl(url="media") {
     response = await response.json();
 
     currentUrl = url;
-
     filesystem.innerHTML = "";
-    for (let obj of response["list"]) {
-        const div = document.createElement("div");
-        div.classList.add(obj["type"]);
-        div.textContent = obj["title"].replaceAll("_", " ");
-        div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
 
-        filesystem.appendChild(div);
+    if ("stream_url" in response["list"][0]) {
+        let file_type = response["list"][0]["type"];
+        if (file_type == "image") {
+            console.log("image");
+            const img = document.createElement("img");
+            img.src = `${API_URL}/${response["list"][0]["stream_url"]}`;
+            img.classList.add("view-image");
+            
+            filesystem.appendChild(img);
+        } else if (file_type == "video") {
+            console.log("video");
+            console.log(response);
+            const vid = document.createElement("video");
+            vid.controls = true;
+            vid.width = 600;
+
+            const source = document.createElement("source");
+            source.src = `${API_URL}/${response["list"][0]["stream_url"]}`;
+            source.type = `${file_type}/${response["title"].split(".").at(-1)}`;
+
+            vid.appendChild(source);
+            filesystem.appendChild(vid);
+        }
+    } else {
+        for (let obj of response["list"]) {
+            const div = document.createElement("div");
+            div.classList.add(obj["type"]);
+            div.textContent = obj["title"].replaceAll("_", " ");
+            div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
+    
+            filesystem.appendChild(div);
+        }
     }
 }
 

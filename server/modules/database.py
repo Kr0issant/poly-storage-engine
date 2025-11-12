@@ -73,27 +73,28 @@ class Database():
         self.fs_files.create_index("metadata.keywords['labels']")
 
     def get_file(self, id: ObjectId):
-        self.fs_files.find("_id"==id)
-        pass
-    
+        return self.fs_files.find_one({"_id": id})
+        
     def get_dir(self, type:list):
         directory_title = []
         directory_list = []
         
         if len(type) == 4:         #IDs
-            directory_title = self.get_file(ObjectId(type[3]))["filename"]
-            directory_list =  self.get_file(ObjectId(type[3]))
+            file_doc = self.get_file(ObjectId(type[3]))
+            file_doc["_id"] = str(file_doc["_id"])
+            directory_title = file_doc["filename"]
+            directory_list = [{"id": file_doc["_id"], "type": file_doc["metadata"]["type"]}]
             
         elif len(type) == 3:       #Subcategory
             directory_title = type[2]
             search_results = self.fs_files.find({
                 "metadata.category": type[1],
-                "metadata.subcategory": type[2]
+                "metadata.subcategory": type[2].replace("_", " ")
             })
             for result in search_results:
                 element = {
                     "title": result["filename"],
-                    "url": f"media/{type[1]}/{type[2]}/{str(result["_id"])}",
+                    "url": f"media/{type[1]}/{type[2].replace(" ", "_")}/{str(result["_id"])}",
                     "type": result["metadata"]["type"]
                 }
                 directory_list.append(element)
@@ -105,7 +106,7 @@ class Database():
             for result in search_results:
                 element = {
                     "title":result,
-                    "url": f"media/{type[1]}/{result}",
+                    "url": f"media/{type[1]}/{result.replace(" ", "_")}",
                     "type": "folder"
                 }
                 
