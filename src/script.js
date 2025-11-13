@@ -237,27 +237,39 @@ async function getFilesystemAtUrl(url="media") {
             img.classList.add("view-image");
             
             filesystem.appendChild(img);
+            filesystem.classList.add("file-open");
         } else if (file_type == "video") {
             console.log("video");
-            console.log(response);
             const vid = document.createElement("video");
             vid.controls = true;
             vid.width = 600;
-
+            vid.classList.add("view-video");
+            
             const source = document.createElement("source");
             source.src = `${API_URL}/${response["list"][0]["stream_url"]}`;
             source.type = `${file_type}/${response["title"].split(".").at(-1)}`;
-
+            
             vid.appendChild(source);
             filesystem.appendChild(vid);
+            filesystem.classList.add("file-open");
         }
     } else {
+        filesystem.classList.remove("file-open");
         for (let obj of response["list"]) {
             const div = document.createElement("div");
             div.classList.add(obj["type"]);
             div.textContent = obj["title"].replaceAll("_", " ");
             div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
-    
+
+            if (obj["type"] != "folder") {
+                const deleteFileBtn = document.createElement("button");
+                deleteFileBtn.textContent = "Delete";
+                deleteFileBtn.classList.add("delete-file-btn");
+                deleteFileBtn.addEventListener("click", () => {});
+
+                div.appendChild(deleteFileBtn);
+            }
+            
             filesystem.appendChild(div);
         }
     }
