@@ -1,10 +1,11 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks, Request, Response
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from modules import database, json_handler, sql_handler
+from modules import database, json_handler, file_handler
 from bson.objectid import ObjectId
 from modules.search import Search
 import uuid
+
 
 app = FastAPI()
 
@@ -25,7 +26,8 @@ app.add_middleware(
 upload_tasks = dict()
 
 db = database.Database()
-json_db = json_handler.JSONHandler()
+files:file_handler.FileHandler = db.files
+
 search = Search()
 
 @app.get("/")
@@ -71,19 +73,19 @@ async def get_progress(task_id: str):
 # Explorer
 @app.get("/explorer/{type}")
 async def fetch_type(type: str):
-    return db.get_dir([type])
+    return files.get_dir([type])
 
 @app.get("/explorer/{type}/{category}")
 async def fetch_cat(type: str, category: str):
-    return db.get_dir([type, category])
+    return files.get_dir([type, category])
 
 @app.get("/explorer/{type}/{category}/{subcategory}")
 async def fetch_subcat(type: str, category: str, subcategory: str):
-    return db.get_dir([type, category, subcategory])
+    return files.get_dir([type, category, subcategory])
 
 @app.get("/explorer/{type}/{category}/{subcategory}/{id}")
 async def fetch_item(type: str, category: str, subcategory:str, id: str):
-    item_details =  db.get_dir([type, category, subcategory, id])
+    item_details =  files.get_dir([type, category, subcategory, id])
     item_details["list"][0]["stream_url"] = f"media-stream/{id}"
 
     return item_details
@@ -91,20 +93,20 @@ async def fetch_item(type: str, category: str, subcategory:str, id: str):
 # File Operations
 @app.get("/delete/{id}")
 async def delete_file(id: str):
-    db.delete_file(ObjectId(id))
+    files.delete_file(ObjectId(id))
     return
 
 # Searching
 @app.get("/search")
 async def fetch_query(query:str):
     query_list = search.get_keywords_from_query(query=query)
-    search_results = db.get_results_from_keywords(query_list)
+    search_results = files.get_results_from_keywords(query_list)
     search_results = search.sort_by_score(search_results, query_list)
     return search.shorten_data(search_results, query)
 
 @app.get("/fetch-id/{id}")
 async def fetch_item_by_id(id:str):
-    db.get_file(id)
+    files.get_file(id)
 
 @app.get("/explorer/json/{path}")
 async def get_json_path(path:str):
@@ -119,7 +121,7 @@ async def stream_media_file(file_id: str, request: Request):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid File ID Format")
     
-    metadata = db.get_file(object_id)
+    metadata = files.get_file(object_id)
     
     if not metadata:
         raise HTTPException(status_code=404, detail="File not found")
@@ -139,7 +141,7 @@ async def stream_media_file(file_id: str, request: Request):
         file_size = metadata["length"]
         range_header = request.headers.get("range")
 
-        file_extension = db.get_file(object_id)["filename"].split(".")[-1]
+        file_extension = files.get_file(object_id)["filename"].split(".")[-1]
 
         if range_header:
             try:

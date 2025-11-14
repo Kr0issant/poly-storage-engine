@@ -1,49 +1,82 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from modules import preprocessor, classifier
+from modules import preprocessor, classifier, json_handler, file_handler
 import gridfs, filetype, json
 
-class Database():
-    def __init__(self):
-        self.client = MongoClient("mongodb://localhost:27017/")
-        self.db = self.client["test"]
+
+class Database(): # Maine Storage Class
+    def __init__(self, mongo_uri = "mongodb://localhost:27017/", db_name = "test1"):
+        #Connect to Mongo DB and Setup Database and GridFS for Files
+        self.client = MongoClient(mongo_uri)
+        self.db = self.client[db_name]
         self.bucket = gridfs.GridFSBucket(self.db)
 
-        self.categories:list
-        with open("modules/classification.json", "r") as file:
-            self.categories = json.load(file)
+        self.files = file_handler.FileHandler(self.db, self.bucket)
+        self.schemas = json_handler.SchemaHandler(self.db)
+        self.jsons  = json_handler.JSONHandler(self.db)
 
-        self.fs_files = self.db.fs.files
-        self.assign_indices()
-        pass
+        with open("modules/classification.json", "r") as file:
+            self.categories: list = json.load(file)
+
+
     
     def upload_sync(self, file_name: str, file_bytes: bytes, classify: bool = False):
-        if classify:
-            type = filetype.guess(file_bytes)
-            if type is None:
-                print(f"Error: Invalid file {file_name}")
-                return
-            elif type.mime.startswith("image/"):
-                type = "image"
-                image = preprocessor.fill_transparent_with_white(preprocessor.bytestream_to_img(file_bytes))
-                predictions = classifier.classify(image)
-            elif type.mime.startswith("video/"):
-                type = "video"
-                frames = preprocessor.get_video_frames(file_bytes, 5)
-                predictions = []
-                for frame in frames:
-                    predictions.append(classifier.classify(preprocessor.fill_transparent_with_white(frame)))
-                predictions = avg_predictions(predictions)
-            else:
-                print(f"Error: Invalid file type {file_name}")
-                return
+        if not classify:
+            return
+        # Trying to Load JSON First
+        try:
+            data = json.loads(file_bytes.decode('utf-8'))
+            # schema = self.schemas.generate_schema(data)
+            print("Detected JSON")
+            json_type = self.schemas.get_json_structure_type(data)
+            print("Structure got" + json_type)
             
-        file_id = self.bucket.upload_from_stream(filename=file_name, source=file_bytes, metadata={
+            if json_type == "json-native": # Json found Deep, Uploading to MongoDB
+                if isinstance(data, dict):
+                    data = [data]
+                for item in data:
+                        print("upload start")
+                        self.jsons.upload_json(data = item, filename=file_name)
+                        print("upload end")
+                
+            if json_type == "sql-candidate":
+                if isinstance(data,dict):
+                    data = [data]
+                for item in data:
+                    print(self.schemas.generate_schema(item))
+
+            return
+        
+        except Exception:
+            print("Not a Json File, Processing as a binary File ")
+
+        # If JSON not Found Its Cnsidered a File
+        type = filetype.guess(file_bytes)
+        if type is None: # for wrong formats/ corrupt files
+            print(f"Error: Invalid file {file_name}")
+            return
+        elif type.mime.startswith("image/"): # Images
+            type = "image"
+            image = preprocessor.fill_transparent_with_white(preprocessor.bytestream_to_img(file_bytes))
+            predictions = classifier.classify(image)
+        elif type.mime.startswith("video/"): # Videos
+            type = "video"
+            frames = preprocessor.get_video_frames(file_bytes, 5)
+            predictions = []
+            for frame in frames:
+                predictions.append(classifier.classify(preprocessor.fill_transparent_with_white(frame)))
+            predictions = avg_predictions(predictions)
+        else: # Some Other (Just in Case)
+            print(f"Error: Invalid file type {file_name}")
+            return
+
+        metadata = {
             "keywords": predictions,
             "category": self.categories[predictions[0]["label"]], 
             "subcategory": predictions[0]["label"],
             "type": type
-        })
+        }    
+        file_id = self.files.upload_file(file_name, file_bytes, metadata)    # File Handler Uploads the file to Database
 
         print(f"Successfully processed and uploaded: {file_name}, ID: {file_id}")
         return (file_id, predictions[0])
@@ -65,106 +98,7 @@ class Database():
             task_store[task_id]["status"] = "error"
             task_store[task_id]["error_message"] = str(e)
 
-    def assign_indices(self):
-        self.fs_files.create_index([
-            ("metadata.category", 1), 
-            ("metadata.subcategory", 1)
-        ])
-        self.fs_files.create_index("metadata.keywords['labels']")
-
-    def get_file(self, id: ObjectId):
-        return self.fs_files.find_one({"_id": id})
-        
-    def get_dir(self, type:list):
-        directory_title = []
-        directory_list = []
-        
-        if len(type) == 4:         #IDs
-            file_doc = self.get_file(ObjectId(type[3]))
-            file_doc["_id"] = str(file_doc["_id"])
-            directory_title = file_doc["filename"]
-            directory_list = [{"id": file_doc["_id"], "type": file_doc["metadata"]["type"]}]
-            
-        elif len(type) == 3:       #Subcategory
-            directory_title = type[2]
-            search_results = self.fs_files.find({
-                "metadata.category": type[1],
-                "metadata.subcategory": type[2].replace("_", " ")
-            })
-            for result in search_results:
-                element = {
-                    "title": result["filename"],
-                    "url": f"media/{type[1]}/{type[2].replace(" ", "_")}/{str(result["_id"])}",
-                    "type": result["metadata"]["type"]
-                }
-                directory_list.append(element)
-            
-
-        elif len(type) == 2:       #Category
-            directory_title = type[1]
-            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category": type[1]})
-            for result in search_results:
-                element = {
-                    "title":result,
-                    "url": f"media/{type[1]}/{result.replace(" ", "_")}",
-                    "type": "folder"
-                }
-                
-                directory_list.append(element)
-
-        elif len(type) == 1 and type[0]=="media":      #Media
-            directory_title = "media"
-            search_results = self.fs_files.distinct("metadata.category")
-            for result in search_results:
-                element = {
-                    "title":result,
-                    "url": f"media/{result}",
-                    "type": "folder"
-                }
-                
-                directory_list.append(element)
-        
-        return {
-            "title":directory_title,
-            "list":directory_list,
-        }
-    
-    def get_results_from_keywords(self, keywords:list):
-        search_results = self.fs_files.find({
-            "metadata.keywords":{
-                "$in":keywords
-            }
-        })
-        return search_results
-
-    def rename_file(self, id: ObjectId, new_name: str):
-        self.bucket.rename(id, new_name)
-        return
-    
-    def delete_file(self, id: ObjectId):
-        self.bucket.delete(id)
-        return
-    
-    # JSON
-    def upload_schema(self,collection_name, generated_schema:dict):
-        if self.existing_schema == None:
-            schema_doc = {
-                "collection_name": collection_name,
-                "schema_stucture": generated_schema
-            }
-            result = self.db["schemas"].insert_one(schema_doc)
-            return result
-
-    def existing_schema(self, incoming_schema):
-        existing_schema_doc = self.db.schemas.find_one({
-            "schema_structure": incoming_schema
-        })
-        if existing_schema_doc:
-            collection_name = existing_schema_doc['collection_name']
-            return collection_name
-
-        else:
-            return None
+ 
     
 def avg_predictions(predictions):
     category_scores = dict()
