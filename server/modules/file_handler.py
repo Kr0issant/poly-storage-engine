@@ -1,6 +1,5 @@
 from bson import ObjectId
 
-
 class FileHandler:
     def __init__(self, db, bucket):
         self.db = db
