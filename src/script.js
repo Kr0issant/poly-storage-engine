@@ -221,12 +221,14 @@ mediaBackBtn.addEventListener("click", () => {
     }
 });
 
-async function getFilesystemAtUrl(url="media") {
+async function getFilesystemAtUrl(url=currentUrl) {
     let response = await fetch(`${API_URL}/explorer/${url}`);
     response = await response.json();
 
     currentUrl = url;
     filesystem.innerHTML = "";
+
+    if (response["list"].length == 0) { return; }
 
     if ("stream_url" in response["list"][0]) {
         let file_type = response["list"][0]["type"];
@@ -265,7 +267,7 @@ async function getFilesystemAtUrl(url="media") {
                 const deleteFileBtn = document.createElement("button");
                 deleteFileBtn.textContent = "Delete";
                 deleteFileBtn.classList.add("delete-file-btn");
-                deleteFileBtn.addEventListener("click", () => {});
+                deleteFileBtn.addEventListener("click", async () => {await deleteFile(obj["url"].split("/").at(-1))});
 
                 div.appendChild(deleteFileBtn);
             }
@@ -275,4 +277,10 @@ async function getFilesystemAtUrl(url="media") {
     }
 }
 
-getFilesystemAtUrl(currentUrl);
+async function deleteFile(object_id) {
+    let response = await fetch(`${API_URL}/delete/${object_id}`);
+    response = await response.json();
+    getFilesystemAtUrl();
+}
+
+getFilesystemAtUrl();

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks, Request, Response
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from modules import database, json_handler
+from modules import database, json_handler, sql_handler
 from bson.objectid import ObjectId
 from modules.search import Search
 import uuid
@@ -87,6 +87,12 @@ async def fetch_item(type: str, category: str, subcategory:str, id: str):
     item_details["list"][0]["stream_url"] = f"media-stream/{id}"
 
     return item_details
+
+# File Operations
+@app.get("/delete/{id}")
+async def delete_file(id: str):
+    db.delete_file(ObjectId(id))
+    return
 
 # Searching
 @app.get("/search")

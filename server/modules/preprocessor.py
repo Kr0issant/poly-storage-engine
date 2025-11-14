@@ -16,11 +16,11 @@ def fill_transparent_with_white(image: Image):
     else:
         return np.array(image.convert('RGB'))
     
-def get_video_frames(video_file: bytes, split_count: int):
+def get_video_frames(video_bytes: bytes, split_count: int):
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=True) as temp_f:
-        temp_f.write(video_file)
+        temp_f.write(video_bytes)
         temp_file_name = temp_f.name
-
+        
         cap = cv2.VideoCapture(temp_file_name)
 
         if not cap.isOpened():
