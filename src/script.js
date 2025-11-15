@@ -246,10 +246,10 @@ async function getFilesystemAtUrl(url=currentUrl) {
         }
     } else if ("json_data" in response) {
         const json_data_type = response["json_data"]
-        const data = response["list"][0]["list"]
+        const data = response["list"]
         
         if (json_data_type == "table") {
-            console.log("table");
+            filesystem.appendChild(getTableDiv(data));
         } else if (json_data_type == "collection") {
             console.log("collection");
         }
@@ -279,30 +279,29 @@ async function getFilesystemAtUrl(url=currentUrl) {
 
  
 function getTableDiv(json) {
-    const columns = [];
-    for (const col in json[0]) { columns.push(obj); }
+    const columns = Object.keys(json[0]);
 
-    filesystem.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
+    const tableDiv = document.createElement("div");
+    tableDiv.classList.add("table-div");
+    tableDiv.style.gridTemplateColumns = `repeat(${columns.length}, minmax(100px, 1fr))`;
 
     columns.forEach(col => {
         const header = document.createElement("div");
         header.className = "grid-header";
         header.textContent = col;
-        container.appendChild(header);
+        tableDiv.appendChild(header);
     });
 
-    table_list.forEach((obj, i) => {
-        const rowDiv = document.createElement("div");
-        rowDiv.className = "grid-row";
-        columns.forEach(col => {
+    json.forEach(obj => {
+        Object.keys(obj).forEach(col => {
             const cell = document.createElement("div");
             cell.className = "grid-cell";
             cell.textContent = obj[col] ?? "";
-            rowDiv.appendChild(cell);
+            tableDiv.appendChild(cell);
         });
-      
-        filesystem.append(...rowDiv.children);
     });
+
+    return tableDiv;
 }
 
 async function deleteFile(object_id) {
