@@ -109,7 +109,7 @@ async def get_tables():
 
 @app.get("/explorer/sql/{table}")
 async def get_table_path(table: str):
-    return
+    return db.sqls.get_table(table_name=table)
 
 
 # File Operations

@@ -308,7 +308,7 @@ async function getFilesystemAtUrl(url=currentUrl) {
     const type = response["list"][0]["type"]
 
     if ("stream_url" in response["list"][0]) {
-        let file_type = response["list"][0]["type"];
+        const file_type = response["list"][0]["type"];
         if (file_type == "image") {
             console.log("image");
             const img = document.createElement("img");
@@ -332,7 +332,16 @@ async function getFilesystemAtUrl(url=currentUrl) {
             filesystem.appendChild(vid);
             filesystem.classList.add("file-open");
         }
-    } else if (type == "folder" || type == "table" || type == "collection" || type == "image" || type == "video") {
+    } else if ("json_data" in response["list"][0]) {
+        const json_data_type = response["list"][0]["json_data"]
+        const data = response["list"][0]["list"]
+
+        if (json_data_type == "table") {
+            
+        } else if (json_data_type == "collection") {
+
+        }
+    } else if (["folder", "table", "collection", "image", "video"].includes(type)) {
         for (let obj of response["list"]) {
             const div = document.createElement("div");
             div.classList.add(obj["type"]);
