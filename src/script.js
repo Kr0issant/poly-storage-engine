@@ -244,14 +244,14 @@ async function getFilesystemAtUrl(url=currentUrl) {
             filesystem.appendChild(vid);
             filesystem.classList.add("file-open");
         }
-    } else if ("json_data" in response["list"][0]) {
-        const json_data_type = response["list"][0]["json_data"]
-        const data = response["list"][0]["list"]
-
+    } else if ("json_data" in response) {
+        const json_data_type = response["json_data"]
+        const data = response["list"]
+        
         if (json_data_type == "table") {
-            
+            filesystem.appendChild(getTableDiv(data));
         } else if (json_data_type == "collection") {
-            
+            console.log("collection");
         }
     } else if (["folder", "table", "collection", "image", "video"].includes(type)) {
         for (let obj of response["list"]) {
@@ -278,34 +278,30 @@ async function getFilesystemAtUrl(url=currentUrl) {
 }
 
  
-function displayTableNames(){
-    // Extract unique column names
-    const columns = [...new Set(table_list.flatMap(obj => Object.keys(obj)))];
+function getTableDiv(json) {
+    const columns = Object.keys(json[0]);
 
-    // Set grid column count
-    container.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
+    const tableDiv = document.createElement("div");
+    tableDiv.classList.add("table-div");
+    tableDiv.style.gridTemplateColumns = `repeat(${columns.length}, minmax(100px, 1fr))`;
 
-    // Add header cells
     columns.forEach(col => {
-      const header = document.createElement("div");
-      header.className = "grid-header";
-      header.textContent = col;
-      container.appendChild(header);
+        const header = document.createElement("div");
+        header.className = "grid-header";
+        header.textContent = col;
+        tableDiv.appendChild(header);
     });
 
-    // Add rows
-    table_list.forEach((obj, i) => {
-      const rowDiv = document.createElement("div");
-      rowDiv.className = "grid-row";
-      columns.forEach(col => {
-        const cell = document.createElement("div");
-        cell.className = "grid-cell";
-        cell.textContent = obj[col] ?? "";
-        rowDiv.appendChild(cell);
-      });
-      // Append all cell DIVs inside row
-      container.append(...rowDiv.children);
+    json.forEach(obj => {
+        Object.keys(obj).forEach(col => {
+            const cell = document.createElement("div");
+            cell.className = "grid-cell";
+            cell.textContent = obj[col] ?? "";
+            tableDiv.appendChild(cell);
+        });
     });
+
+    return tableDiv;
 }
 
 async function deleteFile(object_id) {
