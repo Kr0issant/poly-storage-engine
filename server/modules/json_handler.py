@@ -13,7 +13,10 @@ class JSONHandler():
         pass
     
     def get_json_by_id(self,collection, id):
-        return self.db[collection].find_one({"_id":ObjectId(id)})
+        doc = self.db[collection].find_one({"_id":ObjectId(id)})
+        if doc:
+            doc["_id"] = str(doc["_id"])
+        return doc
 
     def get_collection_dir(self):
         title = "Json Collections"
