@@ -27,6 +27,7 @@ upload_tasks = dict()
 
 db = database.Database()
 files:file_handler.FileHandler = db.files
+jsons:json_handler.JSONHandler = db.jsons
 
 search = Search()
 
@@ -108,10 +109,7 @@ async def fetch_query(query:str):
 async def fetch_item_by_id(id:str):
     files.get_file(id)
 
-@app.get("/explorer/json/{path}")
-async def get_json_path(path:str):
-    # json_db
-    pass
+
 
 # Media Streaming
 @app.get("/media-stream/{file_id}")
@@ -182,3 +180,15 @@ async def stream_media_file(file_id: str, request: Request):
             return StreamingResponse(file_generator_full(), headers=headers)
         
     raise HTTPException(status_code=415, detail="Unsupported media type for streaming")
+
+
+
+#Json Retrieval
+@app.get("/explorer/json/")
+async def get_collections():
+    return db.db.list_collection_names()
+    
+@app.get("/explorer/json/{collection}")
+async def get_json_path(collection:str):
+    return jsons.get_json_storage(collection=collection)
+    pass

@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from modules import preprocessor, classifier, json_handler, file_handler
+from modules import preprocessor, classifier, json_handler, file_handler, schema_handler
 import gridfs, filetype, json
 
 
@@ -12,7 +12,7 @@ class Database(): # Maine Storage Class
         self.bucket = gridfs.GridFSBucket(self.db)
 
         self.files = file_handler.FileHandler(self.db, self.bucket)
-        self.schemas = json_handler.SchemaHandler(self.db)
+        self.schemas = schema_handler.SchemaHandler(self.db)
         self.jsons  = json_handler.JSONHandler(self.db)
 
         with open("modules/classification.json", "r") as file:
