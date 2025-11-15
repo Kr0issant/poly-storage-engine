@@ -176,8 +176,33 @@ searchForm.addEventListener("submit", async (event) => {
     
     let response = await fetch(`${API_URL}/search?query=${searchBar.value}`);
     response = await response.json();
+    let results = response["list"]
 
-    console.log(response);
+    filesystem.innerHTML = "";
+    filesystem.classList.remove("file-open");
+
+    if (results.length == 0) {
+
+    } else {
+        for (let obj of response["list"]) {
+            const div = document.createElement("div");
+            div.classList.add(obj["type"]);
+
+            if (currentUrl.startsWith("media")) { div.textContent = obj["title"].replaceAll("_", " "); }
+            else { div.textContent = obj["title"]; }
+
+            div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
+
+            const deleteFileBtn = document.createElement("button");
+            deleteFileBtn.textContent = "Delete";
+            deleteFileBtn.classList.add("delete-file-btn");
+            deleteFileBtn.addEventListener("click", async () => {await deleteFile(obj["url"].split("/").at(-1))});
+
+            div.appendChild(deleteFileBtn);
+            
+            filesystem.appendChild(div);
+        }
+    }
 
     searchBar.value = "";
 });
