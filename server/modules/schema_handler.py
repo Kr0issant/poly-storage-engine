@@ -1,5 +1,6 @@
 import json
 import genson
+
 class SchemaHandler:
     def __init__(self, db):
         self.db = db

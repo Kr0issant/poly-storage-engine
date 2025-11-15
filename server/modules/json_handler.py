@@ -1,4 +1,5 @@
 from schema_handler import SchemaHandler
+
 class JSONHandler():
     def __init__(self, db):
         self.db = db
