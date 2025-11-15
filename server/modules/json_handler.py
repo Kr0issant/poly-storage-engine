@@ -7,9 +7,24 @@ class JSONHandler():
         self.schema_handler = schema_handler.SchemaHandler(db)
 
     def get_json_by_query(self, query_objects, collection_name):
-        
+
         self.db[collection_name].find()
         pass
+
+    def get_collection_dir(self):
+        title = "Json Collections"
+        inc_list = self.db.list_collection_names()
+        up_list = []
+        for collection in inc_list:
+            element = {
+                "title": collection,
+                "url": f"/json/{collection}"
+            }
+            up_list.append(element)
+        return {
+            "title": title,
+            "list": up_list
+        }
 
     def get_filters(self, collection_name):
         get_schema_for_collection = self.db["schemas"].find_one({"collection_name":collection_name})
@@ -26,7 +41,7 @@ class JSONHandler():
     
     def upload_json(self, data: dict, filename: str):
         json_skeleton = self.schema_handler.generate_schema(data)
-        collection_name = self.schema_handler.existing_schema(json_skeleton)
+        collection_name = self.schema_handler.existing_schema_nosql(json_skeleton)
 
         if collection_name == None:
             self.schema_handler.upload_schema(collection_name=filename, generated_schema=json_skeleton)
