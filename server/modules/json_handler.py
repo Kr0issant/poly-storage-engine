@@ -1,4 +1,4 @@
-from modules import schema_handler
+from modules import schema_handler, utility
 import json
 
 class JSONHandler():
@@ -53,20 +53,20 @@ class JSONHandler():
         collection_name = self.schema_handler.existing_schema_nosql(json_skeleton)
 
         if collection_name == None:
-            self.schema_handler.upload_schema(collection_name=filename, generated_schema=json_skeleton)
+            collection_name = utility.get_unduplicated_name(options=self.db.list_collection_names(), file_name="".join(filename.split(".")[:-1]))
             print("Making new Schema")
-            collection_name = filename
+            self.schema_handler.upload_schema(collection_name=collection_name, generated_schema=json_skeleton)
         
         collection = self.db[collection_name]
         print(f"File to be Saved in {collection_name}")
         
         if isinstance(data, dict):
-                print("File is a single object. Inserting 1 document...")
-                result = collection.insert_one(data)
-                print(f"Successfully inserted document with ID: {result.inserted_id}")
+            print("File is a single object. Inserting 1 document...")
+            result = collection.insert_one(data)
+            print(f"Successfully inserted document with ID: {result.inserted_id}")
     
-    def get_shallow_copy(self, collection_obj:dict):
-        shallow_copy:dict  ={}
+    def get_shallow_copy(self, collection_obj: dict):
+        shallow_copy = dict()
         for key in collection_obj.keys():
             if key == "_id":
                 shallow_copy[key] = str(collection_obj[key])
