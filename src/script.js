@@ -339,34 +339,3 @@ async function deleteFile(object_id) {
 }
 
 getFilesystemAtUrl();
-
-
-function displayTableNames(){
-    // Extract unique column names
-    const columns = [...new Set(table_list.flatMap(obj => Object.keys(obj)))];
-
-    // Set grid column count
-    container.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
-
-    // Add header cells
-    columns.forEach(col => {
-      const header = document.createElement("div");
-      header.className = "grid-header";
-      header.textContent = col;
-      container.appendChild(header);
-    });
-
-    // Add rows
-    table_list.forEach((obj, i) => {
-      const rowDiv = document.createElement("div");
-      rowDiv.className = "grid-row";
-      columns.forEach(col => {
-        const cell = document.createElement("div");
-        cell.className = "grid-cell";
-        cell.textContent = obj[col] ?? "";
-        rowDiv.appendChild(cell);
-      });
-      // Append all cell DIVs inside row
-      container.append(...rowDiv.children);
-    });
-}

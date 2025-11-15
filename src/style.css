@@ -102,7 +102,7 @@ body {
     align-items: center;
 }
 .filesystem > div {
-    width: 100%;
+    width: 95%;
     border-radius: 5px;
     box-shadow: 0 4px 12px #6565650d;
     background-color: #E8DFCA;
@@ -145,13 +145,16 @@ body {
 
 .filesystem .table-div {
     display: grid;
-    gap: 5px;
+    gap: 8px;
     border-radius:5px;
     box-shadow: 0 4px 12px #6565650d;
     max-width: 100%;
     width: fit-content;
     overflow: auto;
     border: 1px solid #424242;
+}
+.filesystem .table-div:hover {
+    background-color: #E8DFCA;
 }
 .filesystem .grid-header {
     display: flex;
@@ -164,7 +167,7 @@ body {
     text-transform: uppercase;
     border: 1px solid #424242;
     /* border-bottom: 1px solid #424242; */
-    border-radius: 1px;
+    border-radius: 4px;
     /* border-right: 1px solid #3d3d3d; */
 }
 
@@ -173,7 +176,9 @@ body {
     justify-content: flex-start;
     align-items: center;
     padding: 10px;
-    background-color:  #e6dcc3ab ;
+    border-radius: 4px;
+    height: 100%;
+    background-color:  #ddd4bbab ;
     /* border: 1px solid #424242; */
     /* border-bottom: 0.1px solid #393939; */
     /* border-right: 0.1px solid #3d3d3d; */
