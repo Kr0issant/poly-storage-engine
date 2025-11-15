@@ -5,7 +5,7 @@ const fileNameDisplay = document.querySelector('#file-name-display');
 const API_URL = "http://localhost:8000";
 
 // Uploading
-const allowedTypes = ['image/', 'video/'];
+const allowedTypes = ['image/', 'video/', 'application/json'];
 
 let files_list = [];
 
