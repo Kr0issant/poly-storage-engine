@@ -8,7 +8,7 @@ class SchemaHandler:
     def existing_schema_nosql(self, incoming_schema: dict):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
         
-        collection = self.db.schemas
+        collection = self.db._schemas
         existing_schema_doc = collection.find_one({"schema_structure": canon_schema_string})
         print(f"DEBUG: find_one result: {existing_schema_doc}")
 
@@ -38,7 +38,7 @@ class SchemaHandler:
             "schema_structure": canon_schema_string
         }
         print("Schema Made")
-        result = self.db["schemas"].insert_one(schema_doc)
+        result = self.db["_schemas"].insert_one(schema_doc)
         print("Schema Uploaded" )
         return result
     

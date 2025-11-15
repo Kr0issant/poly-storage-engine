@@ -332,20 +332,23 @@ async function getFilesystemAtUrl(url=currentUrl) {
             filesystem.appendChild(vid);
             filesystem.classList.add("file-open");
         }
-    } else if ("json_data" in response["list"][0]) {
-        const json_data_type = response["list"][0]["json_data"]
+    } else if ("json_data" in response) {
+        const json_data_type = response["json_data"]
         const data = response["list"][0]["list"]
-
+        
         if (json_data_type == "table") {
-            
+            console.log("table");
         } else if (json_data_type == "collection") {
-
+            console.log("collection");
         }
     } else if (["folder", "table", "collection", "image", "video"].includes(type)) {
         for (let obj of response["list"]) {
             const div = document.createElement("div");
             div.classList.add(obj["type"]);
-            div.textContent = obj["title"].replaceAll("_", " ");
+
+            if (currentUrl.startsWith("media")) { div.textContent = obj["title"].replaceAll("_", " "); }
+            else { div.textContent = obj["title"]; }
+
             div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
 
             if (obj["type"] != "folder") {
@@ -360,6 +363,34 @@ async function getFilesystemAtUrl(url=currentUrl) {
             filesystem.appendChild(div);
         }
     }
+}
+
+ 
+function getTableDiv(json) {
+    const columns = [];
+    for (const col in json[0]) { columns.push(obj); }
+
+    filesystem.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
+
+    columns.forEach(col => {
+        const header = document.createElement("div");
+        header.className = "grid-header";
+        header.textContent = col;
+        container.appendChild(header);
+    });
+
+    table_list.forEach((obj, i) => {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "grid-row";
+        columns.forEach(col => {
+            const cell = document.createElement("div");
+            cell.className = "grid-cell";
+            cell.textContent = obj[col] ?? "";
+            rowDiv.appendChild(cell);
+        });
+      
+        filesystem.append(...rowDiv.children);
+    });
 }
 
 async function deleteFile(object_id) {
