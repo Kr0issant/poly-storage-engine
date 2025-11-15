@@ -251,13 +251,16 @@ async function getFilesystemAtUrl(url=currentUrl) {
         if (json_data_type == "table") {
             
         } else if (json_data_type == "collection") {
-
+            
         }
     } else if (["folder", "table", "collection", "image", "video"].includes(type)) {
         for (let obj of response["list"]) {
             const div = document.createElement("div");
             div.classList.add(obj["type"]);
-            div.textContent = obj["title"].replaceAll("_", " ");
+
+            if (currentUrl.startsWith("media")) { div.textContent = obj["title"].replaceAll("_", " "); }
+            else { div.textContent = obj["title"]; }
+
             div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
 
             if (obj["type"] != "folder") {
@@ -272,6 +275,37 @@ async function getFilesystemAtUrl(url=currentUrl) {
             filesystem.appendChild(div);
         }
     }
+}
+
+ 
+function displayTableNames(){
+    // Extract unique column names
+    const columns = [...new Set(table_list.flatMap(obj => Object.keys(obj)))];
+
+    // Set grid column count
+    container.style.gridTemplateColumns = repeat(${columns.length}, 1fr);
+
+    // Add header cells
+    columns.forEach(col => {
+      const header = document.createElement("div");
+      header.className = "grid-header";
+      header.textContent = col;
+      container.appendChild(header);
+    });
+
+    // Add rows
+    table_list.forEach((obj, i) => {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "grid-row";
+      columns.forEach(col => {
+        const cell = document.createElement("div");
+        cell.className = "grid-cell";
+        cell.textContent = obj[col] ?? "";
+        rowDiv.appendChild(cell);
+      });
+      // Append all cell DIVs inside row
+      container.append(...rowDiv.children);
+    });
 }
 
 async function deleteFile(object_id) {
