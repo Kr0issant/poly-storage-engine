@@ -1,9 +1,9 @@
-from schema_handler import SchemaHandler
+from modules import schema_handler
 
 class JSONHandler():
     def __init__(self, db):
         self.db = db
-        self.schema_handler = SchemaHandler(db)
+        self.schema_handler = schema_handler.SchemaHandler(db)
 
     def get_json_by_query(self, query):
         pass

@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from modules import preprocessor, classifier, json_handler, file_handler, schema_handler
+from modules import preprocessor, classifier, json_handler, file_handler, schema_handler, utility
 import gridfs, filetype, json
-from modules import utility
 
 
 class Database(): # Maine Storage Class

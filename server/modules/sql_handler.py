@@ -1,6 +1,6 @@
 import sqlite3
 import os, json
-import utility
+from modules import utility
 
 class SQLHandler():
     def __init__(self):
