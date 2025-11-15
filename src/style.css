@@ -86,6 +86,7 @@ body {
 .media-div {
     height: 83%;
 }
+
 .filesystem {
     display: flex;
     height: 100%;
@@ -274,4 +275,61 @@ body {
 
 .hidden {
     display: none
+}
+
+
+
+
+
+
+
+
+
+.explorer {
+    overflow: auto;
+}
+.sql-scroll{
+    display: flex;
+    height: 83%;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: auto;
+    user-select: none;
+}
+
+.grid-table {
+      display: grid;
+      /* border: 1px solid #ccc; */
+      /* background: white; */
+      /* box-shadow: 0 0 5px rgba(0,0,0,0.1); */
+      /* overflow: auto; */
+      border:  1px solid #3d3d3d;
+      border-radius:5px ;
+    }
+
+.grid-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ebdcba;
+      /* color: white; */
+      font-weight: bold;
+      padding: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #424242;
+      border-radius: 1px;
+      border-right: 1px solid #3d3d3d;
+    }
+
+    .grid-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      background-color:  #e6dcc3ab ;
+      border-bottom: 0.1px solid #393939;
+      border-right: 0.1px solid #3d3d3d;
+    }
+    .grid-cell:hover {
+    background-color: #e6dcc3ab;
 }

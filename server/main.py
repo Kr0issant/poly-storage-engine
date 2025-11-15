@@ -130,7 +130,7 @@ async def stream_media_file(file_id: str, request: Request):
     if content_type == "image":
         stream = db.bucket.open_download_stream(object_id)
         if stream:
-            return Response(content=stream.read(), media_type=f"image/{metadata['filename'].split(".")[-1]}")
+            return Response(content=stream.read(), media_type=f"image/{metadata['filename'].split('.')[-1]}")
         else:
             raise HTTPException(status_code=500, detail="Could not open image stream")
     

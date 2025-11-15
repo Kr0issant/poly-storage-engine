@@ -1,6 +1,7 @@
 const dropArea = document.querySelector(".drop-area");
 const fileInput = document.querySelector('#file-upload');
 const fileNameDisplay = document.querySelector('#file-name-display');
+const container = document.getElementById("gridContainer"); // to display SQL
 
 const API_URL = "http://localhost:8000";
 
@@ -8,6 +9,93 @@ const API_URL = "http://localhost:8000";
 const allowedTypes = ['image/', 'video/', 'application/json'];
 
 let files_list = [];
+
+// storing json files
+let table_list=[
+  {
+    "productId": "SKU-A-1034",
+    "productName": "Ergonomic Office Chair",
+    "category": "Furniture",
+    "price": 249.99,
+    "inStock": true,
+    "stockCount": 85
+  },
+  {
+    "productId": "SKU-B-2091",
+    "productName": "Wireless Mechanical Keyboard",
+    "category": "Electronics",
+    "price": 129.50,
+    "inStock": true,
+    "stockCount": 150,
+    "profit": 50
+  },
+  {
+    "productId": "SKU-A-1035",
+    "productName": "Adjustable Standing Desk",
+    "category": "Furniture",
+    "price": 499.00,
+    "inStock": false,
+    "stockCount": 0
+  },
+  {
+    "productId": "SKU-C-8843",
+    "productName": "4K Ultra-Wide Monitor",
+    "category": "Electronics",
+    "price": 799.99,
+    "inStock": true,
+    "stockCount": 42
+  },
+  {
+    "productId": "SKU-B-2091",
+    "productName": "Wireless Mechanical Keyboard",
+    "category": "Electronics",
+    "price": 129.50,
+    "inStock": true,
+    "stockCount": 150,
+    "profit": 50
+  },
+  {
+    "productId": "SKU-A-1035",
+    "productName": "Adjustable Standing Desk",
+    "category": "Furniture",
+    "price": 499.00,
+    "inStock": false,
+    "stockCount": 0
+  },
+  {
+    "productId": "SKU-C-8843",
+    "productName": "4K Ultra-Wide Monitor",
+    "category": "Electronics",
+    "price": 799.99,
+    "inStock": true,
+    "stockCount": 42
+  },
+  {
+    "productId": "SKU-B-2091",
+    "productName": "Wireless Mechanical Keyboard",
+    "category": "Electronics",
+    "price": 129.50,
+    "inStock": true,
+    "stockCount": 150,
+    "profit": 50
+  },
+  {
+    "productId": "SKU-A-1035",
+    "productName": "Adjustable Standing Desk",
+    "category": "Furniture",
+    "price": 499.00,
+    "inStock": false,
+    "stockCount": 0
+  },
+  {
+    "productId": "SKU-C-8843",
+    "productName": "4K Ultra-Wide Monitor",
+    "category": "Electronics",
+    "price": 799.99,
+    "inStock": true,
+    "stockCount": 42
+  }
+]
 
 dropArea.addEventListener('click', () => {
     fileInput.click();
@@ -284,3 +372,34 @@ async function deleteFile(object_id) {
 }
 
 getFilesystemAtUrl();
+
+
+function displayTableNames(){
+    // Extract unique column names
+    const columns = [...new Set(table_list.flatMap(obj => Object.keys(obj)))];
+
+    // Set grid column count
+    container.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
+
+    // Add header cells
+    columns.forEach(col => {
+      const header = document.createElement("div");
+      header.className = "grid-header";
+      header.textContent = col;
+      container.appendChild(header);
+    });
+
+    // Add rows
+    table_list.forEach((obj, i) => {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "grid-row";
+      columns.forEach(col => {
+        const cell = document.createElement("div");
+        cell.className = "grid-cell";
+        cell.textContent = obj[col] ?? "";
+        rowDiv.appendChild(cell);
+      });
+      // Append all cell DIVs inside row
+      container.append(...rowDiv.children);
+    });
+}
