@@ -24,7 +24,8 @@ class JSONHandler():
             up_list.append(element)
         return {
             "title": title,
-            "list": up_list
+            "list": up_list,
+            "json_data": "collection"
         }
 
     def get_filters(self, collection_name):
