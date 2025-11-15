@@ -1,5 +1,5 @@
 from bson import ObjectId
-
+import re
 class FileHandler:
     def __init__(self, db, bucket):
         self.db = db
@@ -31,8 +31,8 @@ class FileHandler:
         print(f"Uploaded file {file_name} to GridFS. ID: {file_id}")
         return file_id
 
-    def get_file(self, id: ObjectId):
-        return self.fs_files.find_one({"_id": id})
+    def get_file(self, id: str):
+        return self.fs_files.find_one({"_id": ObjectId(id)})
         
     def get_dir(self, type:list):
         directory_title = []
@@ -89,12 +89,21 @@ class FileHandler:
         }
     
     def get_results_from_keywords(self, keywords:list):
-        search_results = self.fs_files.find({
-            "metadata.keywords":{
-                "$in":keywords
-            }
-        })
-        return search_results
+        print(keywords, "hello")
+        h = list(self.fs_files.find())
+        output_list = []
+        for x in h:
+            normalized_keywords = self.get_corrected_keyword_list(x["metadata"]["keywords"])
+            for search_kw in keywords:
+                pattern = re.compile(re.escape(search_kw), re.IGNORECASE)
+                
+
+                # Check if any normalized keyword matches the pattern
+                if any(pattern.search(nk) for nk in normalized_keywords):
+                    output_list.append(x)
+                    break 
+
+        return output_list
     
     def rename_file(self, id: ObjectId, new_name: str):
         self.bucket.rename(id, new_name)
@@ -103,3 +112,8 @@ class FileHandler:
     def delete_file(self, id: ObjectId):
         self.bucket.delete(id)
         return
+    def get_corrected_keyword_list(self, keyword_list:list):
+        keywords = []
+        for key in keyword_list:
+            keywords.append(key["label"])
+        return keywords

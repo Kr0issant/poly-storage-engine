@@ -8,10 +8,12 @@ class Search():
         
     def get_keywords_from_query(self, query:str):  
         key_list = []
+        print(query,"this is a query")
         for x in query.split(" "):
             lowercase = x.lower()
             if lowercase in self.keys:
                 key_list.append(x)
+        print(key_list,"Hello")
         return key_list
     def sort_by_score(self, search_results, query_list):
         return sorted(search_results, key=lambda result: self.added_scores(result, query_list), reverse=True)
@@ -25,10 +27,11 @@ class Search():
 
     def shorten_data(self, search_results, query):
         directory_list = []
+        print(search_results)
         for result in search_results:
             element = {
                 "title":result["filename"],
-                "url":f"/search/{element["_id"]}"
+                "url":f"/search/{str(result["_id"])}"
             }
             directory_list.append(element)
         return {
@@ -38,4 +41,4 @@ class Search():
 
 
     
-print(Search().get_keywords_from_query(query="I need a photo of a sky and a lake"))
+print(Search().get_keywords_from_query(query="night sky"))
