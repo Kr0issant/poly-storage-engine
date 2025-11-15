@@ -8,7 +8,7 @@ class SchemaHandler:
     def existing_schema_nosql(self, incoming_schema: dict):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
         
-        collection = self.db._schemas
+        collection = self.db["_schemas"]
         existing_schema_doc = collection.find_one({"schema_structure": canon_schema_string})
         print(f"DEBUG: find_one result: {existing_schema_doc}")
 
