@@ -34,7 +34,7 @@ class Search():
             subcategory = result["metadata"]["subcategory"].replace("_", " ")
             element = {
                 "title":result["filename"],
-                "url":f"/media/{category}/{subcategory}/{str(result["_id"])}"
+                "url":f"media/{category}/{subcategory}/{str(result["_id"])}"
             }
             directory_list.append(element)
         return {

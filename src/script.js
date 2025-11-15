@@ -178,6 +178,8 @@ searchForm.addEventListener("submit", async (event) => {
     response = await response.json();
     let results = response["list"]
 
+    currentUrl = "media/";
+
     filesystem.innerHTML = "";
     filesystem.classList.remove("file-open");
 
@@ -190,7 +192,7 @@ searchForm.addEventListener("submit", async (event) => {
 
             if (currentUrl.startsWith("media")) { div.textContent = obj["title"].replaceAll("_", " "); }
             else { div.textContent = obj["title"]; }
-
+            
             div.addEventListener("dblclick", () => {getFilesystemAtUrl(obj["url"])});
 
             const deleteFileBtn = document.createElement("button");
