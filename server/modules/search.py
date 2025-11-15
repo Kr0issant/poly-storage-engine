@@ -27,11 +27,14 @@ class Search():
 
     def shorten_data(self, search_results, query):
         directory_list = []
+        
         print(search_results)
         for result in search_results:
+            category = result["metadata"]["category"]
+            subcategory = result["metadata"]["subcategory"].replace("_", " ")
             element = {
                 "title":result["filename"],
-                "url":f"/search/{str(result["_id"])}"
+                "url":f"/media/{category}/{subcategory}/{str(result["_id"])}"
             }
             directory_list.append(element)
         return {
