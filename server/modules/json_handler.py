@@ -35,10 +35,11 @@ class JSONHandler():
     
 
     def get_json_storage(self, collection):
-        collection_content = self.db[collection].find({})
+        collection_content = list(self.db[collection].find())
         json_storage_list:list = []
         for obj in collection_content:
             json_storage_list.append(self.get_shallow_copy(collection_obj=obj))
+        print(json_storage_list)
         return json_storage_list
     
     def upload_json(self, data: dict, filename: str):
@@ -61,9 +62,13 @@ class JSONHandler():
     def get_shallow_copy(self, collection_obj:dict):
         shallow_copy:dict  ={}
         for key in collection_obj.keys():
-            if isinstance(collection_obj[key], list):
-                shallow_copy[key] = "List"
-            elif isinstance(collection_obj, dict):
-                shallow_copy[key] = "Object"
+            if key == "_id":
+                shallow_copy[key] = str(collection_obj[key])
             else:
-                shallow_copy[key] = collection_obj[key]
+                if isinstance(collection_obj[key], list):
+                    shallow_copy[key] = "List"
+                elif isinstance(collection_obj[key], dict):
+                    shallow_copy[key] = "Object"
+                else:
+                    shallow_copy[key] = collection_obj[key]
+        return shallow_copy
