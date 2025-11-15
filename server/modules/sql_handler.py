@@ -9,16 +9,19 @@ class SQLHandler():
             os.makedirs(os.path.join(db_path, "sqlite"))
         db_path = os.path.join(db_path, "sqlite", "database.db")
 
-        self.conn = sqlite3.connect(db_path)
+        self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.cursor = self.conn.cursor()
+
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS _schemas(collection_name TEXT, schema_structure TEXT);")
 
         self.schema_handler = schema_handler.SchemaHandler(self)
 
     def upload_sql(self, data: dict, filename: str):
         sql_skeleton = self.schema_handler.generate_schema(data)
-        table_name = self.schema_handler.existing_schema_nosql(sql_skeleton)
+        table_name = self.schema_handler.existing_schema_sql(sql_skeleton)
 
         if table_name == None:
+            print("table doesnt exist")
             table_name = self.schema_to_table(filename, sql_skeleton)
             self.schema_handler.upload_schema_sql(table_name=table_name, generated_schema=sql_skeleton)
             print("Made new Schema")
@@ -29,13 +32,14 @@ class SQLHandler():
             print("File is a single object. Inserting 1 document...")
             id = utility.random_id_generator(8)
             properties_string = utility.clean_list_to_str(data.keys())
-            values_string = utility.clean_vales_to_str(data, properties_string.split(", "))
+            print(properties_string.split(", "))
+            values_string = utility.clean_values_to_str(data, properties_string.split(", "))
 
             self.cursor.execute(f"INSERT INTO {table_name}({properties_string}) VALUES({values_string});")
             print(f"Successfully inserted document with ID: {id}")
 
     def schema_to_table(self, file_name: str, json_object: dict):
-        properties = json.load(json_object)["properties"]
+        properties = json_object["properties"]
         id_duplicates = 0
         columns = []
         for property_name in properties.keys():
@@ -61,6 +65,8 @@ class SQLHandler():
         
         table_names = self.list_tables()
         table_name = utility.get_unduplicated_name(options=table_names, file_name=file_name, separate_extension=True)
+
+        self.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure) VALUES("{table_name}", "{json_object}");')
 
         self.create_table(name=table_name, cols=columns)
 
@@ -92,13 +98,13 @@ class SQLHandler():
 
     
     def get_table_dir(self):
-        title = "Json Collections"
-        inc_list = self.db.list_collection_names()
+        title = "SQL Tables"
+        inc_list = self.list_tables()
         up_list = []
         for table in inc_list:
             element = {
                 "title": table,
-                "url": f"/json/{table}"
+                "url": f"/sql/{table}"
             }
             up_list.append(element)
         return {
@@ -108,4 +114,4 @@ class SQLHandler():
 
 # a = SQLHandler()
 
-# a.create_table("tablename", ["ID", "INT", "PRIMARY KEY"], ["NAME", "TEXT", "NOT NULL"], ["AGE", "INT"])
+# a.cursor.execute("DROP TABLE identify_me_pleasesql")

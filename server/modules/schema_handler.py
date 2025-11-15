@@ -5,7 +5,7 @@ class SchemaHandler:
     def __init__(self, db):
         self.db = db
         
-    def existing_schema_nosql(self, incoming_schema):     
+    def existing_schema_nosql(self, incoming_schema: dict):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
         
         collection = self.db.schemas
@@ -18,11 +18,13 @@ class SchemaHandler:
         else:
             return None
     
-    def existing_schema_sql(self, incoming_schema):
+    def existing_schema_sql(self, incoming_schema: dict):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
 
-        tables = self.db.cursor.execute(f"SELECT collection_name FROM _schemas WHERE schema_structure={canon_schema_string}").fetchall()
-
+        print(f'SELECT collection_name FROM _schemas WHERE schema_structure=\'{canon_schema_string}\';')
+        
+        tables = self.db.cursor.execute(f'SELECT collection_name FROM _schemas WHERE schema_structure=\'{canon_schema_string}\';').fetchall()
+        print(tables)
         if len(tables) == 0:
             return None
         else:
@@ -41,11 +43,12 @@ class SchemaHandler:
         return result
     
     def upload_schema_sql(self, table_name: str, generated_schema: dict):
+        print(generated_schema)
         canon_schema_string = self._get_canonical_schema_str(generated_schema)
-
-        self.db.cursor.execute(f"INSERT INTO _schemas(collection_name, schema_structure) VALUES({table_name}, {canon_schema_string});")
+        print(f"INSERT INTO _schemas(collection_name, schema_structure) VALUES({table_name}, {canon_schema_string});")
+        self.db.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure) VALUES("{table_name}", \'{canon_schema_string}\');')
         print("Schema Uploaded")
-        return 
+        return
 
     def generate_schema(self, obj):
         builder = genson.SchemaBuilder()

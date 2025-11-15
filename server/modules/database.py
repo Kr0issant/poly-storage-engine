@@ -3,6 +3,8 @@ from bson.objectid import ObjectId
 from modules import preprocessor, classifier, json_handler, file_handler, schema_handler, utility, sql_handler
 import gridfs, filetype, json
 
+import traceback
+
 class Database(): # Maine Storage Class
     def __init__(self, mongo_uri = "mongodb://localhost:27017/", db_name = "test1"):
         #Connect to Mongo DB and Setup Database and GridFS for Files
@@ -27,7 +29,7 @@ class Database(): # Maine Storage Class
             # schema = self.schemas.generate_schema(data)
             print("Detected JSON")
             json_type = self.schemas.get_json_structure_type(data)
-            print("Structure got" + json_type)
+            print("Structure got " + json_type)
             
             if json_type == "json-native": # Json found Deep, Uploading to MongoDB
                 if isinstance(data, dict):
@@ -45,8 +47,9 @@ class Database(): # Maine Storage Class
 
             return
         
-        except Exception:
-            print("Not a Json File, Processing as a binary File ")
+        except Exception as e:
+            traceback.print_exc()
+            print(f"Not a Json File, Processing as a binary File {e}")
 
         # If JSON not Found Its Cnsidered a File
         type = filetype.guess(file_bytes)
