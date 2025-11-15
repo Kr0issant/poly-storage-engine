@@ -7,8 +7,10 @@ class FileHandler:
         self.fs_files = self.db.fs.files
         #Create Indices for File Manager and Search
         self.assign_indices()
-
         pass
+    
+    def get_file_filters(self):
+        self.fs_files
     
     def assign_indices(self):
         # Indices for File Manager
@@ -36,40 +38,40 @@ class FileHandler:
         directory_title = []
         directory_list = []
         
-        if len(type) == 4:         #IDs
-            file_doc = self.get_file(ObjectId(type[3]))
+        if len(type) == 3:         #IDs
+            file_doc = self.get_file(ObjectId(type[2]))
             file_doc["_id"] = str(file_doc["_id"])
             directory_title = file_doc["filename"]
             directory_list = [{"id": file_doc["_id"], "type": file_doc["metadata"]["type"]}]
             
-        elif len(type) == 3:       #Subcategory
-            directory_title = type[2]
+        elif len(type) == 2:       #Subcategory
+            directory_title = type[1]
             search_results = self.fs_files.find({
-                "metadata.category": type[1],
-                "metadata.subcategory": type[2].replace("_", " ")
+                "metadata.category": type[0],
+                "metadata.subcategory": type[1].replace("_", " ")
             })
             for result in search_results:
                 element = {
                     "title": result["filename"],
-                    "url": f"media/{type[1]}/{type[2].replace(" ", "_")}/{str(result["_id"])}",
+                    "url": f"media/{type[0]}/{type[1].replace(" ", "_")}/{str(result["_id"])}",
                     "type": result["metadata"]["type"]
                 }
                 directory_list.append(element)
             
 
-        elif len(type) == 2:       #Category
-            directory_title = type[1]
-            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category": type[1]})
+        elif len(type) == 1:       #Category
+            directory_title = type[0]
+            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category": type[0]})
             for result in search_results:
                 element = {
                     "title":result,
-                    "url": f"media/{type[1]}/{result.replace(" ", "_")}",
+                    "url": f"media/{type[0]}/{result.replace(" ", "_")}",
                     "type": "folder"
                 }
                 
                 directory_list.append(element)
 
-        elif len(type) == 1 and type[0]=="media":      #Media
+        elif len(type) == 0:      #Media
             directory_title = "media"
             search_results = self.fs_files.distinct("metadata.category")
             for result in search_results:

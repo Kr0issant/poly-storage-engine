@@ -1,12 +1,21 @@
 from modules import schema_handler
+import json
 
 class JSONHandler():
     def __init__(self, db):
         self.db = db
         self.schema_handler = schema_handler.SchemaHandler(db)
 
-    def get_json_by_query(self, query):
+    def get_json_by_query(self, query_objects, collection_name):
+        
+        self.db[collection_name].find()
         pass
+
+    def get_filters(self, collection_name):
+        get_schema_for_collection = self.db["schemas"].find_one({"collection_name":collection_name})
+        schema_object = json.loads(get_schema_for_collection["schema_structure"])
+        return schema_object
+    
 
     def get_json_storage(self, collection):
         collection_content = self.db[collection].find({})
@@ -15,14 +24,14 @@ class JSONHandler():
             json_storage_list.append(self.get_shallow_copy(collection_obj=obj))
         return json_storage_list
     
-    def upload_json(self, data, filename):
+    def upload_json(self, data: dict, filename: str):
         json_skeleton = self.schema_handler.generate_schema(data)
         collection_name = self.schema_handler.existing_schema(json_skeleton)
 
         if collection_name == None:
             self.schema_handler.upload_schema(collection_name=filename, generated_schema=json_skeleton)
             print("Making new Schema")
-            collection_name = filename 
+            collection_name = filename
         
         collection = self.db[collection_name]
         print(f"File to be Saved in {collection_name}")
@@ -32,3 +41,12 @@ class JSONHandler():
                 result = collection.insert_one(data)
                 print(f"Successfully inserted document with ID: {result.inserted_id}")
     
+    def get_shallow_copy(self, collection_obj:dict):
+        shallow_copy:dict  ={}
+        for key in collection_obj.keys():
+            if isinstance(collection_obj[key], list):
+                shallow_copy[key] = "List"
+            elif isinstance(collection_obj, dict):
+                shallow_copy[key] = "Object"
+            else:
+                shallow_copy[key] = collection_obj[key]

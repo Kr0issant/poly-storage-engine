@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from modules import preprocessor, classifier, json_handler, file_handler, schema_handler, utility
+from modules import preprocessor, classifier, json_handler, file_handler, schema_handler, utility, sql_handler
 import gridfs, filetype, json
-
 
 class Database(): # Maine Storage Class
     def __init__(self, mongo_uri = "mongodb://localhost:27017/", db_name = "test1"):
@@ -14,12 +13,11 @@ class Database(): # Maine Storage Class
         self.files = file_handler.FileHandler(self.db, self.bucket)
         self.schemas = schema_handler.SchemaHandler(self.db)
         self.jsons  = json_handler.JSONHandler(self.db)
+        self.sqls = sql_handler.SQLHandler()
 
         with open("modules/classification.json", "r") as file:
             self.categories: list = json.load(file)
 
-
-    
     def upload_sync(self, file_name: str, file_bytes: bytes, classify: bool = False):
         if not classify:
             return
@@ -35,13 +33,14 @@ class Database(): # Maine Storage Class
                 if isinstance(data, dict):
                     data = [data]
                 for item in data:
-                        print("upload start")
-                        self.jsons.upload_json(data = item, filename=file_name)
-                        print("upload end")
+                    print("upload start")
+                    self.jsons.upload_json(data = item, filename=file_name)
+                    print("upload end")
                 
-            if json_type == "sql-candidate":
+            if json_type == "sql-candidate": # Json found Flat, Uploading to SQLite
                 if isinstance(data,dict):
                     data = [data]
+
                 for item in data:
                     print(self.schemas.generate_schema(item))
 
@@ -98,4 +97,9 @@ class Database(): # Maine Storage Class
             task_store[task_id]["status"] = "error"
             task_store[task_id]["error_message"] = str(e)
 
+    def fiter_no_sql(self, collection_name):
+        if collection_name == "fs.files":
+            self.files.get_file_filters()
+        else:
+            self.jsons.get_filters()
  

@@ -71,31 +71,48 @@ async def get_progress(task_id: str):
     else:
         return task
 
-# Explorer
-@app.get("/explorer/{type}")
-async def fetch_type(type: str):
-    return files.get_dir([type])
+# Media Explorer
+@app.get("/explorer/media")
+async def fetch_type():
+    return files.get_dir([])
 
-@app.get("/explorer/{type}/{category}")
-async def fetch_cat(type: str, category: str):
-    return files.get_dir([type, category])
+@app.get("/explorer/media/{category}")
+async def fetch_cat(category: str):
+    return files.get_dir([category])
 
-@app.get("/explorer/{type}/{category}/{subcategory}")
-async def fetch_subcat(type: str, category: str, subcategory: str):
-    return files.get_dir([type, category, subcategory])
+@app.get("/explorer/media/{category}/{subcategory}")
+async def fetch_subcat(category: str, subcategory: str):
+    return files.get_dir([category, subcategory])
 
-@app.get("/explorer/{type}/{category}/{subcategory}/{id}")
-async def fetch_item(type: str, category: str, subcategory:str, id: str):
-    item_details =  files.get_dir([type, category, subcategory, id])
+@app.get("/explorer/media/{category}/{subcategory}/{id}")
+async def fetch_item(category: str, subcategory:str, id: str):
+    item_details =  files.get_dir([category, subcategory, id])
     item_details["list"][0]["stream_url"] = f"media-stream/{id}"
 
     return item_details
+
+
+# NoSQL Explorer
+@app.get("/explorer/nosql")
+async def get_collections():
+    print({"list": db.db.list_collection_names()})
+    return {"list": db.db.list_collection_names()}
+    
+@app.get("/explorer/nosql/{collection}")
+async def get_json_path(collection:str):
+    return jsons.get_json_storage(collection=collection)
+
+
+# SQL Explorer
+
+
 
 # File Operations
 @app.get("/delete/{id}")
 async def delete_file(id: str):
     files.delete_file(ObjectId(id))
     return
+
 
 # Searching
 @app.get("/search")
@@ -108,7 +125,6 @@ async def fetch_query(query:str):
 @app.get("/fetch-id/{id}")
 async def fetch_item_by_id(id:str):
     files.get_file(id)
-
 
 
 # Media Streaming
@@ -180,15 +196,3 @@ async def stream_media_file(file_id: str, request: Request):
             return StreamingResponse(file_generator_full(), headers=headers)
         
     raise HTTPException(status_code=415, detail="Unsupported media type for streaming")
-
-
-
-#Json Retrieval
-@app.get("/explorer/json/")
-async def get_collections():
-    return db.db.list_collection_names()
-    
-@app.get("/explorer/json/{collection}")
-async def get_json_path(collection:str):
-    return jsons.get_json_storage(collection=collection)
-    pass

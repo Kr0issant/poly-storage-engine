@@ -25,3 +25,19 @@ def avg_predictions(predictions):
         reverse=True
     )
     return avg_p[:3]
+
+def get_unduplicated_name(options: list, file_name: str, separate_extension: bool = False):
+    if separate_extension:
+        file_name = "".join(file_name.split(".")[:-1])
+        
+    duplicate_names = 0
+    
+    while True:
+        name = file_name + (f"_{duplicate_names}" * (0 if duplicate_names == 0 else 1))
+
+        if name in options:
+            duplicate_names += 1
+        else:
+            break
+
+    return name
