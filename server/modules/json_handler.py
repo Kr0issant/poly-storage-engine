@@ -7,7 +7,7 @@ class JSONHandler():
         self.schema_handler = schema_handler.SchemaHandler(db)
 
     def get_json_by_query(self, query_objects, collection_name):
-
+        #
         self.db[collection_name].find()
         pass
 
@@ -16,12 +16,14 @@ class JSONHandler():
         inc_list = self.db.list_collection_names()
         up_list = []
         for collection in inc_list:
-            element = {
-                "title": collection,
-                "url": f"nosql/{collection}",
-                "type": "collection"
-            }
-            up_list.append(element)
+            if not collection in ["fs.chunks", "fs.files","_schemas"]:
+                element = {
+                    "title": collection,
+                    "url": f"nosql/{collection}",
+                    "type": "collection"
+                }
+                up_list.append(element)
+        
         return {
             "title": title,
             "list": up_list,
@@ -29,7 +31,7 @@ class JSONHandler():
         }
 
     def get_filters(self, collection_name):
-        get_schema_for_collection = self.db["schemas"].find_one({"collection_name":collection_name})
+        get_schema_for_collection = self.db["_schemas"].find_one({"collection_name":collection_name})
         schema_object = json.loads(get_schema_for_collection["schema_structure"])
         return schema_object
     
@@ -38,8 +40,12 @@ class JSONHandler():
         collection_content = list(self.db[collection].find())
         json_storage_list:list = []
         for obj in collection_content:
-            json_storage_list.append(self.get_shallow_copy(collection_obj=obj))
-        print(json_storage_list)
+            element = self.get_shallow_copy(collection_obj=obj)
+            _id = element["_id"]
+            json_storage_list.append({
+                "element":element,
+                "url":f"nosql/{collection}/{_id}"
+            })
         return json_storage_list
     
     def upload_json(self, data: dict, filename: str):
