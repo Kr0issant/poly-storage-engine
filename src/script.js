@@ -187,25 +187,9 @@ const mediaBtn = document.querySelector("#view-media-btn");
 const sqlBtn = document.querySelector("#view-sql-btn");
 const nosqlBtn = document.querySelector("#view-nosql-btn");
 
-const mediaDiv = document.querySelector(".media-div");
-const sqlDiv = document.querySelector(".sql-div");
-const nosqlDiv = document.querySelector(".nosql-div");
-
-mediaBtn.addEventListener("click", () => {
-    mediaDiv.classList.remove("hidden");
-    sqlDiv.classList.add("hidden");
-    nosqlDiv.classList.add("hidden");
-});
-sqlBtn.addEventListener("click", () => {
-    mediaDiv.classList.add("hidden");
-    sqlDiv.classList.remove("hidden");
-    nosqlDiv.classList.add("hidden");
-});
-nosqlBtn.addEventListener("click", () => {
-    mediaDiv.classList.add("hidden");
-    sqlDiv.classList.add("hidden");
-    nosqlDiv.classList.remove("hidden");
-});
+mediaBtn.addEventListener("click", () => { currentUrl = "media"; getFilesystemAtUrl(); });
+sqlBtn.addEventListener("click", () => { currentUrl = "sql"; getFilesystemAtUrl(); });
+nosqlBtn.addEventListener("click", () => { currentUrl = "nosql"; getFilesystemAtUrl(); });
 
 // File Explorer
 const filesystem = document.querySelector(".filesystem");
@@ -224,6 +208,8 @@ mediaBackBtn.addEventListener("click", () => {
 async function getFilesystemAtUrl(url=currentUrl) {
     let response = await fetch(`${API_URL}/explorer/${url}`);
     response = await response.json();
+
+    console.log(response);
 
     currentUrl = url;
     filesystem.innerHTML = "";

@@ -16,25 +16,15 @@
 
     <div class="main-container">
         <div class="explorer">
-            <div class="media-div">
-                <div class="search-container">
-                    <button class="media-back-btn"><img src="./icons/left.png" height="40px"></button>
-                    <form id="search-form" action="http://localhost:8000/search" method="GET">
-                        <input type="text" id="search-bar" placeholder="Search">
-                        <button type="submit" id="search-btn"><img src="./icons/search.png" height="15px" style="filter: brightness(0) invert(1);"></button>
-                    </form>
-                </div>
-                
-                <div class="filesystem"></div>
+            <div class="search-container">
+                <button class="media-back-btn"><img src="./icons/left.png" height="40px"></button>
+                <form id="search-form" action="http://localhost:8000/search" method="GET">
+                    <input type="text" id="search-bar" placeholder="Search">
+                    <button type="submit" id="search-btn"><img src="./icons/search.png" height="15px" style="filter: brightness(0) invert(1);"></button>
+                </form>
             </div>
-
-            <div class="sql-div">
-
-            </div>
-
-            <div class="nosql-div">
-
-            </div>
+            
+            <div class="filesystem"></div>
         </div>
         
         <form class="upload-form" action="http://localhost:8000/upload" method="POST" enctype="multipart/form-data">
