@@ -110,12 +110,13 @@ class SQLHandler():
         for table in inc_list:
             element = {
                 "title": table,
-                "url": f"/sql/{table}"
+                "url": f"sql/{table}",
+                "type": "table"
             }
             up_list.append(element)
         return {
             "title": title,
-            "list": up_list
+            "list": up_list,
         }
 
 # a = SQLHandler()
