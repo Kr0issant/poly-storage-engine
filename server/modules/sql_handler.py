@@ -98,14 +98,18 @@ class SQLHandler():
 
     #     self.cursor.execute(f"INSERT INTO {table_name}({", ".join(properties)}) VALUES({", ".join(values)});")
     
-    def list_tables(self):
-        table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
-        return [t[0] for t in table_names]
+    def list_tables(self, exclude_schemas=False):
+        table_names = [t[0] for t in self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()]
+
+        if exclude_schemas and "_schemas" in table_names:
+            table_names.remove("_schemas")
+
+        return table_names
 
     
     def get_table_dir(self):
         title = "SQL Tables"
-        inc_list = self.list_tables()
+        inc_list = self.list_tables(exclude_schemas=True)
         up_list = []
         for table in inc_list:
             element = {

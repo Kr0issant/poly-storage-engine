@@ -10,93 +10,6 @@ const allowedTypes = ['image/', 'video/', 'application/json'];
 
 let files_list = [];
 
-// storing json files
-let table_list=[
-  {
-    "productId": "SKU-A-1034",
-    "productName": "Ergonomic Office Chair",
-    "category": "Furniture",
-    "price": 249.99,
-    "inStock": true,
-    "stockCount": 85
-  },
-  {
-    "productId": "SKU-B-2091",
-    "productName": "Wireless Mechanical Keyboard",
-    "category": "Electronics",
-    "price": 129.50,
-    "inStock": true,
-    "stockCount": 150,
-    "profit": 50
-  },
-  {
-    "productId": "SKU-A-1035",
-    "productName": "Adjustable Standing Desk",
-    "category": "Furniture",
-    "price": 499.00,
-    "inStock": false,
-    "stockCount": 0
-  },
-  {
-    "productId": "SKU-C-8843",
-    "productName": "4K Ultra-Wide Monitor",
-    "category": "Electronics",
-    "price": 799.99,
-    "inStock": true,
-    "stockCount": 42
-  },
-  {
-    "productId": "SKU-B-2091",
-    "productName": "Wireless Mechanical Keyboard",
-    "category": "Electronics",
-    "price": 129.50,
-    "inStock": true,
-    "stockCount": 150,
-    "profit": 50
-  },
-  {
-    "productId": "SKU-A-1035",
-    "productName": "Adjustable Standing Desk",
-    "category": "Furniture",
-    "price": 499.00,
-    "inStock": false,
-    "stockCount": 0
-  },
-  {
-    "productId": "SKU-C-8843",
-    "productName": "4K Ultra-Wide Monitor",
-    "category": "Electronics",
-    "price": 799.99,
-    "inStock": true,
-    "stockCount": 42
-  },
-  {
-    "productId": "SKU-B-2091",
-    "productName": "Wireless Mechanical Keyboard",
-    "category": "Electronics",
-    "price": 129.50,
-    "inStock": true,
-    "stockCount": 150,
-    "profit": 50
-  },
-  {
-    "productId": "SKU-A-1035",
-    "productName": "Adjustable Standing Desk",
-    "category": "Furniture",
-    "price": 499.00,
-    "inStock": false,
-    "stockCount": 0
-  },
-  {
-    "productId": "SKU-C-8843",
-    "productName": "4K Ultra-Wide Monitor",
-    "category": "Electronics",
-    "price": 799.99,
-    "inStock": true,
-    "stockCount": 42
-  }
-]
-
 dropArea.addEventListener('click', () => {
     fileInput.click();
 })
@@ -398,7 +311,7 @@ function getTableDiv(json) {
 
     const tableDiv = document.createElement("div");
     tableDiv.classList.add("table-div");
-    tableDiv.style.gridTemplateColumns = `repeat(${columns.length}, minmax(100px, 1fr))`;
+    tableDiv.style.gridTemplateColumns = `repeat(${columns.length}, auto)`;
 
     columns.forEach(col => {
         const header = document.createElement("div");

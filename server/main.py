@@ -134,10 +134,6 @@ async def fetch_query(query:str):
     print(search.shorten_data(search_results, query))
     return search.shorten_data(search_results, query)
 
-@app.get("/fetch-id/{id}")
-async def fetch_item_by_id(id:str):
-    files.get_file(id)
-
 
 # Media Streaming
 @app.get("/media-stream/{file_id}")

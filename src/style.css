@@ -1,5 +1,6 @@
 * {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
 }
 body {
     background-color: #E8DFCA;
@@ -82,6 +83,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 12px #6565650d;
     padding: 0.5rem 2rem;
+    overflow: auto;
 }
 
 .filesystem {
@@ -90,6 +92,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    max-width: 100%;
     overflow: auto;
     user-select: none;
 }
@@ -99,7 +102,7 @@ body {
     align-items: center;
 }
 .filesystem > div {
-    width: 95%;
+    width: 100%;
     border-radius: 5px;
     box-shadow: 0 4px 12px #6565650d;
     background-color: #E8DFCA;
@@ -142,14 +145,17 @@ body {
 
 .filesystem .table-div {
     display: grid;
-    gap: 0px;
-    border-radius:5px ;
+    gap: 5px;
+    border-radius:5px;
     box-shadow: 0 4px 12px #6565650d;
+    max-width: 100%;
+    width: fit-content;
     overflow: auto;
     border: 1px solid #424242;
 }
 .filesystem .grid-header {
     display: flex;
+    text-wrap: nowrap;
     justify-content: center;
     align-items: center;
     background: #CBDCEB;
@@ -164,7 +170,7 @@ body {
 
 .filesystem .grid-cell {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 10px;
     background-color:  #e6dcc3ab ;
