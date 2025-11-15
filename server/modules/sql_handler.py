@@ -1,5 +1,6 @@
 import sqlite3
-import os, json, random, string
+import os, json
+import utility
 
 class SQLHandler():
     def __init__(self):
@@ -52,7 +53,3 @@ class SQLHandler():
 # a = SQLHandler()
 
 # a.create_table("tablename", ["ID", "INT", "PRIMARY KEY"], ["NAME", "VARCHAR(50)", "NOT NULL"], ["AGE", "INT"])
-
-def random_id_generator(length: int = 8):
-    characters = string.ascii_letters + string.digits
-    return "".join(random.choices(characters, k=length))

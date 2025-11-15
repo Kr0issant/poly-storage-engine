@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from modules import preprocessor, classifier, json_handler, file_handler
 import gridfs, filetype, json
+from modules import utility
 
 
 class Database(): # Maine Storage Class
@@ -65,7 +66,7 @@ class Database(): # Maine Storage Class
             predictions = []
             for frame in frames:
                 predictions.append(classifier.classify(preprocessor.fill_transparent_with_white(frame)))
-            predictions = avg_predictions(predictions)
+            predictions = utility.avg_predictions(predictions)
         else: # Some Other (Just in Case)
             print(f"Error: Invalid file type {file_name}")
             return
@@ -99,25 +100,3 @@ class Database(): # Maine Storage Class
             task_store[task_id]["error_message"] = str(e)
 
  
-    
-def avg_predictions(predictions):
-    category_scores = dict()
-    size = len(predictions)
-    for i in range(len(predictions)):
-        for j in predictions[i]:
-            label = j["label"]
-            score = j["score"]
-            
-            category_scores[label] = category_scores.get(label, 0.0) + score
-
-    avg_p = []
-    for label, total_score in category_scores.items():
-        average_score = total_score / size
-        avg_p.append({"label": label, "score": average_score})
-
-    avg_p = sorted(
-        avg_p, 
-        key=lambda d: d["score"], 
-        reverse=True
-    )
-    return avg_p[:3]

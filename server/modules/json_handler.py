@@ -1,6 +1,7 @@
 import json
 import genson
 from pymongo import MongoClient
+
 class JSONHandler():
     def __init__(self, db):
         self.db = db
@@ -79,8 +80,6 @@ class SchemaHandler:
             if not isinstance(schema_dict, dict):
                 return "{}"
             return json.dumps(schema_dict, sort_keys=True)
-
-
 
     def is_obj_flat(self, obj) -> bool:
         if not isinstance(obj, dict):
