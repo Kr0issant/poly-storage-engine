@@ -1,5 +1,6 @@
 * {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
 }
 body {
     background-color: #E8DFCA;
@@ -92,7 +93,7 @@ body {
     align-items: center;
     gap: 1rem;
     max-width: 100%;
-    overflow: hidden;
+    overflow: auto;
     user-select: none;
 }
 .filesystem.file-open {
@@ -102,7 +103,6 @@ body {
 }
 .filesystem > div {
     width: 100%;
-    box-sizing: border-box;
     border-radius: 5px;
     box-shadow: 0 4px 12px #6565650d;
     background-color: #E8DFCA;
