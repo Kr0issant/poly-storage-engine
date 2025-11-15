@@ -101,6 +101,10 @@ async def get_collections():
 async def get_json_path(collection:str):
     return jsons.get_json_storage(collection=collection)
 
+@app.get("/explorer/nosql/{collection}/{id}")
+async def get_json_file(collection:str, id:str):
+    return jsons.get_json_by_id(collection, id)
+
 
 # SQL Explorer
 @app.get("/explorer/sql")
@@ -122,9 +126,12 @@ async def delete_file(id: str):
 # Searching
 @app.get("/search")
 async def fetch_query(query:str):
+    print("called")
     query_list = search.get_keywords_from_query(query=query)
+    print(query_list)
     search_results = files.get_results_from_keywords(query_list)
     search_results = search.sort_by_score(search_results, query_list)
+    print(search.shorten_data(search_results, query))
     return search.shorten_data(search_results, query)
 
 @app.get("/fetch-id/{id}")

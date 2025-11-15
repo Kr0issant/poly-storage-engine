@@ -88,6 +88,7 @@ body {
     display: flex;
     height: 85%;
     flex-direction: column;
+    align-items: center;
     gap: 1rem;
     overflow: auto;
     user-select: none;
@@ -98,7 +99,7 @@ body {
     align-items: center;
 }
 .filesystem > div {
-    width: 90%;
+    width: 95%;
     border-radius: 5px;
     box-shadow: 0 4px 12px #6565650d;
     background-color: #E8DFCA;
@@ -137,6 +138,36 @@ body {
 .filesystem .view-video {
     /* align-self: center; */
 
+}
+
+.filesystem .table-div {
+    display: grid;
+    gap: 1px;
+    border-radius:5px ;
+    box-shadow: 0 4px 12px #6565650d;
+    overflow: auto;
+}
+.filesystem .grid-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #CBDCEB;
+    font-weight: bold;
+    padding: 10px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #424242;
+    border-radius: 1px;
+    border-right: 1px solid #3d3d3d;
+}
+
+.filesystem .grid-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color:  #e6dcc3ab ;
+    border-bottom: 0.1px solid #393939;
+    border-right: 0.1px solid #3d3d3d;
 }
 
 .upload-form {

@@ -1,5 +1,6 @@
 from modules import schema_handler, utility
 import json
+from bson import ObjectId
 
 class JSONHandler():
     def __init__(self, db):
@@ -10,6 +11,9 @@ class JSONHandler():
         #
         self.db[collection_name].find()
         pass
+    
+    def get_json_by_id(self,collection, id):
+        return self.db[collection].find_one({"_id":ObjectId(id)})
 
     def get_collection_dir(self):
         title = "Json Collections"
