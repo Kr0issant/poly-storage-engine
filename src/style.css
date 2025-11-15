@@ -83,6 +83,7 @@ body {
     box-shadow: 0 4px 12px #6565650d;
     padding: 0.5rem 2rem;
 }
+
 .filesystem {
     display: flex;
     height: 85%;
@@ -141,10 +142,11 @@ body {
 
 .filesystem .table-div {
     display: grid;
-    gap: 1px;
+    gap: 0px;
     border-radius:5px ;
     box-shadow: 0 4px 12px #6565650d;
     overflow: auto;
+    border: 1px solid #424242;
 }
 .filesystem .grid-header {
     display: flex;
@@ -154,9 +156,10 @@ body {
     font-weight: bold;
     padding: 10px;
     text-transform: uppercase;
-    border-bottom: 1px solid #424242;
+    border: 1px solid #424242;
+    /* border-bottom: 1px solid #424242; */
     border-radius: 1px;
-    border-right: 1px solid #3d3d3d;
+    /* border-right: 1px solid #3d3d3d; */
 }
 
 .filesystem .grid-cell {
@@ -165,8 +168,9 @@ body {
     align-items: center;
     padding: 10px;
     background-color:  #e6dcc3ab ;
-    border-bottom: 0.1px solid #393939;
-    border-right: 0.1px solid #3d3d3d;
+    /* border: 1px solid #424242; */
+    /* border-bottom: 0.1px solid #393939; */
+    /* border-right: 0.1px solid #3d3d3d; */
 }
 
 .upload-form {
