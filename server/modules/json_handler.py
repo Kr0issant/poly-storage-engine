@@ -26,7 +26,7 @@ class JSONHandler():
     
     def upload_json(self, data: dict, filename: str):
         json_skeleton = self.schema_handler.generate_schema(data)
-        collection_name = self.schema_handler.existing_schema(json_skeleton)
+        collection_name = self.schema_handler.existing_schema_nosql(json_skeleton)
 
         if collection_name == None:
             self.schema_handler.upload_schema(collection_name=filename, generated_schema=json_skeleton)

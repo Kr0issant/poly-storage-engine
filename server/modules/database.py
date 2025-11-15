@@ -33,16 +33,15 @@ class Database(): # Maine Storage Class
                 if isinstance(data, dict):
                     data = [data]
                 for item in data:
-                    print("upload start")
-                    self.jsons.upload_json(data = item, filename=file_name)
-                    print("upload end")
+                    self.jsons.upload_json(data=item, filename=file_name)
+                    print("uploaded to nosql")
                 
             if json_type == "sql-candidate": # Json found Flat, Uploading to SQLite
                 if isinstance(data,dict):
                     data = [data]
-
                 for item in data:
-                    print(self.schemas.generate_schema(item))
+                    self.sqls.upload_sql(data=item, filename=file_name)
+                    print("uploaded to sql")
 
             return
         
