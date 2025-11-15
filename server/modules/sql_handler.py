@@ -13,6 +13,7 @@ class SQLHandler():
         self.cursor = self.conn.cursor()
 
         self.cursor.execute("CREATE TABLE IF NOT EXISTS _schemas(collection_name TEXT, schema_structure TEXT);")
+        self.conn.commit()
 
         self.schema_handler = schema_handler.SchemaHandler(self)
 
@@ -31,11 +32,15 @@ class SQLHandler():
         if isinstance(data, dict):
             print("File is a single object. Inserting 1 document...")
             id = utility.random_id_generator(8)
+
             properties_string = utility.clean_list_to_str(data.keys())
             print(properties_string.split(", "))
             values_string = utility.clean_values_to_str(data, properties_string.split(", "))
 
+            print(values_string)
+
             self.cursor.execute(f"INSERT INTO {table_name}({properties_string}) VALUES({values_string});")
+            self.conn.commit()
             print(f"Successfully inserted document with ID: {id}")
 
     def schema_to_table(self, file_name: str, json_object: dict):
@@ -63,10 +68,8 @@ class SQLHandler():
 
         columns.insert(0, [("_" * id_duplicates) + "ID", "TEXT", "PRIMARY KEY"])
         
-        table_names = self.list_tables()
+        table_names = list(self.list_tables())
         table_name = utility.get_unduplicated_name(options=table_names, file_name=file_name, separate_extension=True)
-
-        self.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure) VALUES("{table_name}", "{json_object}");')
 
         self.create_table(name=table_name, cols=columns)
 
@@ -81,7 +84,9 @@ class SQLHandler():
                 details += col + " "
             details = details.strip() + ", "
 
+        
         query = f"CREATE TABLE {name}({details.strip()[:-1]});"
+        print(query)
         # print(query)
         self.cursor.execute(query)
 
@@ -94,7 +99,8 @@ class SQLHandler():
     #     self.cursor.execute(f"INSERT INTO {table_name}({", ".join(properties)}) VALUES({", ".join(values)});")
     
     def list_tables(self):
-        return self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        return [t[0] for t in table_names]
 
     
     def get_table_dir(self):
@@ -114,4 +120,4 @@ class SQLHandler():
 
 # a = SQLHandler()
 
-# a.cursor.execute("DROP TABLE identify_me_pleasesql")
+# a.cursor.execute("DROP TABLE _schemas")

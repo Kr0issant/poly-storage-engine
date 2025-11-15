@@ -43,14 +43,16 @@ def get_unduplicated_name(options: list, file_name: str, separate_extension: boo
     return name
 
 def clean_list_to_str(keys: list):
-    return ", ".join([f'"{keys}"' for key in keys])
+    return ", ".join([f'"{key}"' for key in keys])
     
 def clean_values_to_str(data: dict, keys: list):
-    values = ""
+    values = []
     for key in keys:
-        value = data[key]
+        value = data[key.strip('"')]
         if isinstance(value, str):
             value = f'"{value}"'
-        values.append(f"{data[key]}")
+        elif isinstance(value, bool):
+            value = 1 if value else 0
+        values.append(value)
     
-    return ", ".join(values)
+    return ", ".join(map(str, values))

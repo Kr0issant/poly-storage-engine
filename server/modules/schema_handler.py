@@ -20,15 +20,15 @@ class SchemaHandler:
     
     def existing_schema_sql(self, incoming_schema: dict):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
-
-        print(f'SELECT collection_name FROM _schemas WHERE schema_structure=\'{canon_schema_string}\';')
         
-        tables = self.db.cursor.execute(f'SELECT collection_name FROM _schemas WHERE schema_structure=\'{canon_schema_string}\';').fetchall()
+        query = "SELECT collection_name FROM _schemas WHERE schema_structure = ?;"
+        
+        tables = self.db.cursor.execute(query, (canon_schema_string,)).fetchall()
         print(tables)
         if len(tables) == 0:
             return None
         else:
-            return tables[0]
+            return tables[0][0]
     
     def upload_schema(self,collection_name: str, generated_schema:dict):
         canon_schema_string = self._get_canonical_schema_str(generated_schema)
@@ -45,8 +45,8 @@ class SchemaHandler:
     def upload_schema_sql(self, table_name: str, generated_schema: dict):
         print(generated_schema)
         canon_schema_string = self._get_canonical_schema_str(generated_schema)
-        print(f"INSERT INTO _schemas(collection_name, schema_structure) VALUES({table_name}, {canon_schema_string});")
-        self.db.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure) VALUES("{table_name}", \'{canon_schema_string}\');')
+        self.db.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure) VALUES(?, ?);', (table_name, canon_schema_string))
+        self.db.conn.commit()
         print("Schema Uploaded")
         return
 
