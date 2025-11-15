@@ -26,8 +26,7 @@ class JSONHandler():
         
         return {
             "title": title,
-            "list": up_list,
-            "json_data": "collection"
+            "list": up_list
         }
 
     def get_filters(self, collection_name):
@@ -38,15 +37,20 @@ class JSONHandler():
 
     def get_json_storage(self, collection):
         collection_content = list(self.db[collection].find())
-        json_storage_list:list = []
+        json_storage_list: list = []
         for obj in collection_content:
             element = self.get_shallow_copy(collection_obj=obj)
             _id = element["_id"]
             json_storage_list.append({
                 "element":element,
-                "url":f"nosql/{collection}/{_id}"
+                "url":f"nosql/{collection}/{_id}",
+                "json_data": "collection"
             })
-        return json_storage_list
+        return {
+            "title": collection,
+            "list": json_storage_list,
+            "json_data": "collection"
+        }
     
     def upload_json(self, data: dict, filename: str):
         json_skeleton = self.schema_handler.generate_schema(data)
