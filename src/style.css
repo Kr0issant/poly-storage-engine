@@ -97,11 +97,9 @@ body {
     align-items: center;
 }
 .filesystem > div {
-    box-shadow: 0 4px 12px #6565650d;
-}
-.filesystem > div {
     width: 90%;
     border-radius: 5px;
+    box-shadow: 0 4px 12px #6565650d;
     background-color: #E8DFCA;
     transition: background-color 0.2s;
     padding: 12px;

@@ -118,6 +118,28 @@ class SQLHandler():
             "title": title,
             "list": up_list,
         }
+    
+    def get_table(self, table_name: str):
+        if table_name not in self.list_tables():
+            return {"message": "No SQL injection attacks for you lol"}
+        
+        rows = self.cursor.execute(f"SELECT * FROM {table_name}").fetchall()
+        column_names = [description[0] for description in self.cursor.description]
+
+        data = []
+        for row in rows:
+            row_dict = {}
+            for i, column in enumerate(column_names):
+                row_dict[column] = row[i]
+            data.append(row_dict)
+        
+        return {
+            "title": table_name,
+            "list": data,
+            "json_data": "table"
+        }
+        
+
 
 # a = SQLHandler()
 
