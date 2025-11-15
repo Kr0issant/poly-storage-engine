@@ -81,6 +81,20 @@ class SQLHandler():
 
         self.cursor.execute(f"INSERT INTO {table_name}({", ".join(properties)}) VALUES({", ".join(values)});")
     
+    def get_table_dir(self):
+        title = "Json Collections"
+        inc_list = self.db.list_collection_names()
+        up_list = []
+        for table in inc_list:
+            element = {
+                "title": table,
+                "url": f"/json/{table}"
+            }
+            up_list.append(element)
+        return {
+            "title": title,
+            "list": up_list
+        }
 
 # a = SQLHandler()
 
