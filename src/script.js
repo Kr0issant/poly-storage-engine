@@ -283,7 +283,7 @@ function displayTableNames(){
     const columns = [...new Set(table_list.flatMap(obj => Object.keys(obj)))];
 
     // Set grid column count
-    container.style.gridTemplateColumns = repeat(${columns.length}, 1fr);
+    container.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
 
     // Add header cells
     columns.forEach(col => {
