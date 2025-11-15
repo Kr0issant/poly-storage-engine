@@ -4,8 +4,11 @@ from modules import utility
 
 class SQLHandler():
     def __init__(self):
-        db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sqlite", "database.db")
-        self.conn = sqlite3.connect(db_path)
+        db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)))
+        if not os.path.exists(os.path.join(db_path, "sqlite")):
+            os.makedirs(os.path.join(db_path, "sqlite"))
+
+        self.conn = sqlite3.connect(os.path.join(db_path, "sqlite", "database.db"))
         self.cursor = self.conn.cursor()
 
     def upload_sql(self, data: dict, filename: str):
