@@ -95,7 +95,7 @@ async def fetch_item(category: str, subcategory:str, id: str):
 # NoSQL Explorer
 @app.get("/explorer/nosql")
 async def get_collections():
-    return {"list": db.db.list_collection_names()}
+    return db.jsons.get_collection_dir()
     
 @app.get("/explorer/nosql/{collection}")
 async def get_json_path(collection:str):
@@ -105,7 +105,11 @@ async def get_json_path(collection:str):
 # SQL Explorer
 @app.get("/explorer/sql")
 async def get_tables():
-    return 
+    return db.sqls.get_table_dir()
+
+@app.get("/explorer/sql/{table}")
+async def get_table_path(table_name: str):
+    return
 
 
 # File Operations

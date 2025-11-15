@@ -45,7 +45,7 @@ def get_unduplicated_name(options: list, file_name: str, separate_extension: boo
 def clean_list_to_str(keys: list):
     return ", ".join([f'"{keys}"' for key in keys])
     
-def clean_vales_to_str(data: dict, keys: list):
+def clean_values_to_str(data: dict, keys: list):
     values = ""
     for key in keys:
         value = data[key]
