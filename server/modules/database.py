@@ -98,4 +98,9 @@ class Database(): # Maine Storage Class
             task_store[task_id]["status"] = "error"
             task_store[task_id]["error_message"] = str(e)
 
+    def fiter_no_sql(self, collection_name):
+        if collection_name == "fs.files":
+            self.files.get_file_filters()
+        else:
+            self.jsons.get_filters()
  

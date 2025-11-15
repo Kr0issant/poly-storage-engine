@@ -7,8 +7,10 @@ class FileHandler:
         self.fs_files = self.db.fs.files
         #Create Indices for File Manager and Search
         self.assign_indices()
-
         pass
+    
+    def get_file_filters(self):
+        self.fs_files
     
     def assign_indices(self):
         # Indices for File Manager
