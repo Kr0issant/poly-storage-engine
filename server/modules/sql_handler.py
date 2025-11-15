@@ -118,6 +118,8 @@ class SQLHandler():
             "title": title,
             "list": up_list,
         }
+    
+    
 
 # a = SQLHandler()
 
