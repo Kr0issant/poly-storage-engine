@@ -100,25 +100,21 @@ body {
 .filesystem > div {
     box-shadow: 0 4px 12px #6565650d;
 }
-.filesystem .folder {
+.filesystem > div {
     width: 90%;
     border-radius: 5px;
     background-color: #E8DFCA;
     transition: background-color 0.2s;
     padding: 12px;
-}
-.filesystem .folder:hover {
-    background-color: #e2dac6;
-}
-.filesystem .image, .filesystem .video {
-    width: 90%;
-    border-radius: 5px;
-    background-color: #d6d1c4;
-    transition: background-color 0.2s;
-    padding: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+.filesystem > div:hover {
+    background-color: #e2dac6;
+}
+.filesystem .image, .filesystem .video {
+    background-color: #d6d1c4;
 }
 .filesystem .image:hover, .filesystem .video:hover {
     background-color: #cdcac0;

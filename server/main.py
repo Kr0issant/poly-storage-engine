@@ -108,7 +108,7 @@ async def get_tables():
     return db.sqls.get_table_dir()
 
 @app.get("/explorer/sql/{table}")
-async def get_table_path(table_name: str):
+async def get_table_path(table: str):
     return
 
 

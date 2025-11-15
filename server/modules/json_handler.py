@@ -18,7 +18,8 @@ class JSONHandler():
         for collection in inc_list:
             element = {
                 "title": collection,
-                "url": f"/json/{collection}"
+                "url": f"nosql/{collection}",
+                "type": "collection"
             }
             up_list.append(element)
         return {

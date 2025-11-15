@@ -286,7 +286,7 @@ const mediaBackBtn = document.querySelector(".media-back-btn");
 let currentUrl = "media";
 
 mediaBackBtn.addEventListener("click", () => {
-    if (currentUrl != "media") {
+    if (!["media", "sql", "nosql"].includes(currentUrl)) {
         const path = currentUrl.split("/");
         currentUrl = path.slice(0, -1).join("/");
         getFilesystemAtUrl(currentUrl);
@@ -301,8 +301,11 @@ async function getFilesystemAtUrl(url=currentUrl) {
 
     currentUrl = url;
     filesystem.innerHTML = "";
+    filesystem.classList.remove("file-open");
 
     if (response["list"].length == 0) { return; }
+
+    const type = response["list"][0]["type"]
 
     if ("stream_url" in response["list"][0]) {
         let file_type = response["list"][0]["type"];
@@ -329,8 +332,7 @@ async function getFilesystemAtUrl(url=currentUrl) {
             filesystem.appendChild(vid);
             filesystem.classList.add("file-open");
         }
-    } else {
-        filesystem.classList.remove("file-open");
+    } else if (type == "folder" || type == "table" || type == "collection" || type == "image" || type == "video") {
         for (let obj of response["list"]) {
             const div = document.createElement("div");
             div.classList.add(obj["type"]);
