@@ -22,7 +22,7 @@ class SQLHandler():
         table_name = self.schema_handler.existing_schema_sql(sql_skeleton)
 
         if table_name == None:
-            print("table doesnt exist")
+            print("Table doesn't Exist")
             table_name = self.schema_to_table(filename, sql_skeleton)
             self.schema_handler.upload_schema_sql(table_name=table_name, generated_schema=sql_skeleton)
             print("Made new Schema")
@@ -37,7 +37,7 @@ class SQLHandler():
             print(properties_string.split(", "))
             values_string = utility.clean_values_to_str(data, properties_string.split(", "))
 
-            print(values_string)
+            # print(values_string)
 
             self.cursor.execute(f"INSERT INTO {table_name}({properties_string}) VALUES({values_string});")
             self.conn.commit()
@@ -48,7 +48,7 @@ class SQLHandler():
         id_duplicates = 0
         columns = []
         for property_name in properties.keys():
-            if property_name == ("_" * id_duplicates) + "ID":
+            if property_name == ("_" * id_duplicates) + "_ID":
                 id_duplicates += 1
 
             type = properties[property_name]["type"]
@@ -66,7 +66,7 @@ class SQLHandler():
 
             columns.append([property_name, type])
 
-        columns.insert(0, [("_" * id_duplicates) + "ID", "TEXT", "PRIMARY KEY"])
+        columns.insert(0, [("_" * id_duplicates) + "_ID", "TEXT", "PRIMARY KEY"])
         
         table_names = list(self.list_tables())
         table_name = utility.get_unduplicated_name(options=table_names, file_name=file_name, separate_extension=True)
@@ -86,7 +86,6 @@ class SQLHandler():
 
         
         query = f"CREATE TABLE {name}({details.strip()[:-1]});"
-        print(query)
         # print(query)
         self.cursor.execute(query)
 
