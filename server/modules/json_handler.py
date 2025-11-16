@@ -22,18 +22,18 @@ class JSONHandler():
             "json_data": "json"
         }
 
-    def get_collection_dir(self):
+    def get_collection_dir(self, user_id): #Done
         title = "Json Collections"
-        inc_list = self.db.list_collection_names()
+        inc_list = list(self.db["_schemas"].find({"user_id":user_id}))
         up_list = []
         for collection in inc_list:
-            if not collection in ["fs.chunks", "fs.files","_schemas"]:
-                element = {
-                    "title": collection,
-                    "url": f"nosql/{collection}",
-                    "type": "collection"
-                }
-                up_list.append(element)
+
+            element = {
+                "title": collection["collection_name"],
+                "url": f"nosql/{collection[["collection_name"]]}",
+                "type": "collection"
+            }
+            up_list.append(element)
         
         return {
             "title": title,

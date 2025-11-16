@@ -16,7 +16,8 @@ class FileHandler:
         # Indices for File Manager
         self.fs_files.create_index([
             ("metadata.category", 1), 
-            ("metadata.subcategory", 1)
+            ("metadata.subcategory", 1),
+            ("metadata.user_id")
         ])
 
         #Indices for Search through Keywords
@@ -34,7 +35,7 @@ class FileHandler:
     def get_file(self, id: str):
         return self.fs_files.find_one({"_id": ObjectId(id)})
         
-    def get_dir(self, type:list):
+    def get_dir(self, type:list, user_id:str):
         directory_title = []
         directory_list = []
         
@@ -48,7 +49,8 @@ class FileHandler:
             directory_title = type[1]
             search_results = self.fs_files.find({
                 "metadata.category": type[0],
-                "metadata.subcategory": type[1].replace("_", " ")
+                "metadata.subcategory": type[1].replace("_", " "),
+                "metadata.user_id":user_id
             })
             for result in search_results:
                 element = {
@@ -61,7 +63,7 @@ class FileHandler:
 
         elif len(type) == 1:       #Category
             directory_title = type[0]
-            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category": type[0]})
+            search_results = self.fs_files.distinct("metadata.subcategory", {"metadata.category": type[0], "metadata.user_id":user_id})
             for result in search_results:
                 element = {
                     "title":result,
@@ -73,7 +75,7 @@ class FileHandler:
 
         elif len(type) == 0:      #Media
             directory_title = "media"
-            search_results = self.fs_files.distinct("metadata.category")
+            search_results = self.fs_files.distinct("metadata.category", {"metadata.user_id":user_id})
             for result in search_results:
                 element = {
                     "title":result,

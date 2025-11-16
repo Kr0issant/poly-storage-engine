@@ -5,11 +5,12 @@ class SchemaHandler:
     def __init__(self, db):
         self.db = db
         
-    def existing_schema_nosql(self, incoming_schema: dict):
+    def existing_schema_nosql(self, incoming_schema: dict, user_id:str):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
         
         collection = self.db["_schemas"]
-        existing_schema_doc = collection.find_one({"schema_structure": canon_schema_string})
+        existing_schema_doc = collection.find_one({"schema_structure": canon_schema_string,
+                                                   "user_id":user_id})
         print(f"DEBUG: find_one result: {existing_schema_doc}")
 
         if existing_schema_doc:
@@ -18,34 +19,35 @@ class SchemaHandler:
         else:
             return None
     
-    def existing_schema_sql(self, incoming_schema: dict):
+    def existing_schema_sql(self, incoming_schema: dict, user_id:str):
         canon_schema_string = self._get_canonical_schema_str(incoming_schema)
         
-        query = "SELECT collection_name FROM _schemas WHERE schema_structure = ?;"
+        query = "SELECT collection_name FROM _schemas WHERE schema_structure = ?,user_id = ?;"
         
-        tables = self.db.cursor.execute(query, (canon_schema_string,)).fetchall()
+        tables = self.db.cursor.execute(query, (canon_schema_string, user_id)).fetchall()
         print(tables)
         if len(tables) == 0:
             return None
         else:
             return tables[0][0]
     
-    def upload_schema(self,collection_name: str, generated_schema:dict):
+    def upload_schema(self,collection_name: str, generated_schema:dict, user_id:str):
         canon_schema_string = self._get_canonical_schema_str(generated_schema)
 
         schema_doc = {
             "collection_name": collection_name,
-            "schema_structure": canon_schema_string
+            "schema_structure": canon_schema_string,
+            "user_id":user_id
         }
         print("Schema Made")
         result = self.db["_schemas"].insert_one(schema_doc)
         print("Schema Uploaded" )
         return result
     
-    def upload_schema_sql(self, table_name: str, generated_schema: dict):
+    def upload_schema_sql(self, table_name: str, generated_schema: dict, user_id:str):
         print(generated_schema)
         canon_schema_string = self._get_canonical_schema_str(generated_schema)
-        self.db.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure) VALUES(?, ?);', (table_name, canon_schema_string))
+        self.db.cursor.execute(f'INSERT INTO _schemas(collection_name, schema_structure, user_id) VALUES(?, ?, ?);', (table_name, canon_schema_string, user_id))
         self.db.conn.commit()
         print("Schema Uploaded")
         return

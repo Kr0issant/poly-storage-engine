@@ -20,7 +20,7 @@ class Database(): # Maine Storage Class
         with open("modules/classification.json", "r") as file:
             self.categories: list = json.load(file)
 
-    def upload_sync(self, file_name: str, file_bytes: bytes, classify: bool = False):
+    def upload_sync(self, file_name: str, file_bytes: bytes, user_id:str, classify: bool = False):
         if not classify:
             return
         # Trying to Load JSON First
@@ -75,7 +75,8 @@ class Database(): # Maine Storage Class
             "keywords": predictions,
             "category": self.categories[predictions[0]["label"]], 
             "subcategory": predictions[0]["label"],
-            "type": type
+            "type": type,
+            "user_id":user_id
         }    
         file_id = self.files.upload_file(file_name, file_bytes, metadata)    # File Handler Uploads the file to Database
 

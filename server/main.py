@@ -1,13 +1,15 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks, Request, Response
+from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks, Request, Response, Depends
 from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from modules import database, json_handler, file_handler
 from bson.objectid import ObjectId
 from modules.search import Search
-import uuid
+import uuid, json
 
 
 app = FastAPI()
+security = HTTPBasic()
 
 origins = [
     "http://localhost",
@@ -35,8 +37,26 @@ search = Search()
 def root():
     return {"greeting": "Hello, useless customer"}
 
+@app.post("/login")
+async def login(credentials: HTTPBasicCredentials = Depends(security)):
+    username = credentials.username
+    password = credentials.password
+    
+    with open("users.json", "r") as accounts:
+        data:dict = json.load(accounts)
+        if username not in data.keys():
+            data[username] = password
+            with open ("users.json", "w") as accounts:
+                json.dump(data,accounts, indent=4)
+            return username
+        elif password == data[username]:
+            return username
+        else:
+            return {"status": "invalid credentials"}
+
+
 @app.post("/upload")
-async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile] = File(...)):
+async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile] = File(...), user_id: str = Depends(login)):
     task_id = str(uuid.uuid4())
 
     files_data = []
@@ -47,7 +67,8 @@ async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile
         "status": "pending",
         "total_files": len(files_data),
         "processed_files": 0,
-        "current_file": ""
+        "current_file": "",
+        "user_id": user_id
     }
 
     background_tasks.add_task(
@@ -61,10 +82,12 @@ async def upload_media(background_tasks: BackgroundTasks, files: list[UploadFile
 
 # Progress Tracking
 @app.get("/progress/{task_id}")
-async def get_progress(task_id: str):
+async def get_progress(task_id: str, user_id: str = Depends(login)):
     task = upload_tasks.get(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    elif task["user_id"] != user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     
     if task["status"] == "complete" or task["status"] == "error":
         return upload_tasks.pop(task_id)
@@ -73,59 +96,59 @@ async def get_progress(task_id: str):
 
 # Media Explorer
 @app.get("/explorer/media")
-async def fetch_type():
-    return files.get_dir([])
+async def fetch_type(user_id: str = Depends(login)):
+    return files.get_dir([], user_id=user_id)
 
 @app.get("/explorer/media/{category}")
-async def fetch_cat(category: str):
-    return files.get_dir([category])
+async def fetch_cat(category: str, user_id: str = Depends(login)):
+    return files.get_dir([category], user_id=user_id)
 
 @app.get("/explorer/media/{category}/{subcategory}")
-async def fetch_subcat(category: str, subcategory: str):
-    return files.get_dir([category, subcategory])
+async def fetch_subcat(category: str, subcategory: str, user_id: str = Depends(login)):
+    return files.get_dir([category, subcategory], user_id=user_id)
 
 @app.get("/explorer/media/{category}/{subcategory}/{id}")
-async def fetch_item(category: str, subcategory:str, id: str):
-    item_details =  files.get_dir([category, subcategory, id])
+async def fetch_item(category: str, subcategory:str, id: str, user_id: str = Depends(login)):
+    item_details =  files.get_dir([category, subcategory, id], user_id=user_id)
     item_details["list"][0]["stream_url"] = f"media-stream/{id}"
 
     return item_details
 
 
 # NoSQL Explorer
-@app.get("/explorer/nosql")
-async def get_collections():
-    return db.jsons.get_collection_dir()
+@app.get("/explorer/nosql") #Auth Done
+async def get_collections(user_id: str = Depends(login)):
+    return db.jsons.get_collection_dir(user_id)
     
-@app.get("/explorer/nosql/{collection}")
-async def get_json_path(collection:str):
+@app.get("/explorer/nosql/{collection}") 
+async def get_json_path(collection:str, user_id: str = Depends(login)):
     return jsons.get_json_storage(collection=collection)
 
 @app.get("/explorer/nosql/{collection}/{id}")
-async def get_json_file(collection:str, id:str):
+async def get_json_file(collection:str, id:str, user_id: str = Depends(login)):
     return jsons.get_json_by_id(collection, id)
 
 
 # SQL Explorer
 @app.get("/explorer/sql")
-async def get_tables():
+async def get_tables(user_id: str = Depends(login)):
     return db.sqls.get_table_dir()
 
 @app.get("/explorer/sql/{table}")
-async def get_table_path(table: str):
+async def get_table_path(table: str, user_id: str = Depends(login)):
     return db.sqls.get_table(table_name=table)
 
 
-# File Operations
+# Delete Operations
 @app.get("/delete/{id}")
-async def delete_file(id: str):
+async def delete_file(id: str, user_id: str = Depends(login)):
     files.delete_file(ObjectId(id))
     return
 
 
 # Searching
 @app.get("/search")
-async def fetch_query(query:str):
+async def fetch_query(query: str, user_id: str = Depends(login)):
     print("called")
     query_list = search.get_keywords_from_query(query=query)
     print(query_list)
@@ -137,7 +160,7 @@ async def fetch_query(query:str):
 
 # Media Streaming
 @app.get("/media-stream/{file_id}")
-async def stream_media_file(file_id: str, request: Request):
+async def stream_media_file(file_id: str, request: Request, user_id: str = Depends(login)):
     try:
         object_id = ObjectId(file_id)
     except Exception:
