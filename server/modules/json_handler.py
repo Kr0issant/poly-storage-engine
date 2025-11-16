@@ -19,7 +19,8 @@ class JSONHandler():
         return {
             "title": collection,
             "list": [doc],
-            "json_data": "json"
+            "json_data": "json",
+            "json_layer": 1
         }
 
     def get_collection_dir(self, user_id): #Done
@@ -27,13 +28,13 @@ class JSONHandler():
         inc_list = list(self.db["_schemas"].find({"user_id":user_id}))
         up_list = []
         for collection in inc_list:
-
-            element = {
-                "title": collection["collection_name"],
-                "url": f"nosql/{collection[["collection_name"]]}",
-                "type": "collection"
-            }
-            up_list.append(element)
+            if not collection in ["fs.chunks", "fs.files","_schemas"]:
+                element = {
+                    "title": collection,
+                    "url": f"nosql/{collection}",
+                    "type": "collection"
+                }
+                up_list.append(element)
         
         return {
             "title": title,
@@ -55,12 +56,14 @@ class JSONHandler():
             json_storage_list.append({
                 "element":element,
                 "url":f"nosql/{collection}/{_id}",
-                "json_data": "collection"
+                "json_data": "collection",
+                "json_layer": 1
             })
         return {
             "title": collection,
             "list": json_storage_list,
-            "json_data": "collection"
+            "json_data": "collection",
+            "json_layer": 0
         }
     
     def upload_json(self, data: dict, filename: str):
