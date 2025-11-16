@@ -84,9 +84,6 @@ This system successfully implements all challenge requirements and adds several 
 
 -----
 
-## Screenshots
-
------
 
 ### Prerequisites
 
@@ -161,6 +158,15 @@ This system successfully implements all challenge requirements and adds several 
 * PDF and OCR Support
 * More optimized video processing for large files
 * Better code documentation
+
+-----
+## Screenshots
+
+* []("screenshots/screenshot.png")
+* []("screenshots/screenshot (2).png")
+* []("screenshots/screenshot (3).png")
+* []("screenshots/screenshot (4).png")
+* []("screenshots/screenshot (5).png")
 
 -----
 
