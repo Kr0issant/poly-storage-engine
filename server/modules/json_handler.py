@@ -19,7 +19,8 @@ class JSONHandler():
         return {
             "title": collection,
             "list": [doc],
-            "json_data": "json"
+            "json_data": "json",
+            "json_layer": 1
         }
 
     def get_collection_dir(self):
@@ -31,7 +32,8 @@ class JSONHandler():
                 element = {
                     "title": collection,
                     "url": f"nosql/{collection}",
-                    "type": "collection"
+                    "type": "collection",
+                    "json_layer": 0
                 }
                 up_list.append(element)
         
@@ -55,12 +57,14 @@ class JSONHandler():
             json_storage_list.append({
                 "element":element,
                 "url":f"nosql/{collection}/{_id}",
-                "json_data": "collection"
+                "json_data": "collection",
+                "json_layer": 1
             })
         return {
             "title": collection,
             "list": json_storage_list,
-            "json_data": "collection"
+            "json_data": "collection",
+            "json_layer": 0
         }
     
     def upload_json(self, data: dict, filename: str):
