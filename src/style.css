@@ -184,13 +184,6 @@ body {
     /* border-right: 0.1px solid #3d3d3d; */
 }
 
-.filesystem .json-key {
-    color: #7f31e6;
-}
-.filesystem .json-value {
-    color: #40ad8c;
-}
-
 .upload-form {
     background-color: #F5EFE6;
     padding: 2rem;
