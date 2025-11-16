@@ -48,7 +48,7 @@ class Database(): # Maine Storage Class
             return
         
         except Exception as e:
-            traceback.print_exc()
+            # traceback.print_exc()
             print(f"Not a Json File, Processing as a binary File {e}")
 
         # If JSON not Found Its Cnsidered a File
