@@ -279,7 +279,7 @@ async function getFilesystemAtUrl(url=currentUrl) {
         if (json_data_type == "table") {
             filesystem.appendChild(getTableDiv(data));
         } else if (json_data_type == "collection") {
-            console.log("collection");
+            filesystem.appendChild(getJsonDiv(data));
         }
     } else if (["folder", "table", "collection", "image", "video"].includes(type)) {
         for (let obj of response["list"]) {
@@ -330,6 +330,97 @@ function getTableDiv(json) {
     });
 
     return tableDiv;
+}
+
+function getJsonDiv(json) {
+
+    // const collectionData = json[0]["element"];
+    
+    // // New debug log to confirm
+    // console.log("Corrected data to render:", collectionData);
+
+    // /**
+    //  * Renders a flat object (or an array of them) as a simple key-value list.
+    //  * This function is NOT recursive and is designed for your flat data.
+    //  * @param {any} dataToRender - The data to display.
+    //  * @param {HTMLElement} container - The HTML element to append the results to.
+    //  */
+    // function displayFlatCollection(dataToRender, container) {
+
+    //     /**
+    //      * Creates the HTML for a single flat item.
+    //      */
+    //     function createItemElement(item, title) {
+    //         const details = document.createElement('details');
+    //         details.open = true; // Open by default
+            
+    //         const summary = document.createElement('summary');
+    //         summary.innerHTML = <span class="json-key">${title}</span>;
+    //         details.appendChild(summary);
+
+    //         const propertiesDiv = document.createElement('div');
+    //         propertiesDiv.style.marginLeft = "20px"; 
+
+    //         // Check if item is a valid object
+    //         if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
+                
+    //             // Loop over the keys: "id", "active", "name", "_id", "12 Strong", etc.
+    //             Object.keys(item).forEach(key => {
+    //                 const value = item[key];
+    //                 const row = document.createElement('div');
+    //                 row.className = 'json-item'; 
+
+    //                 const keySpan = document.createElement('span');
+    //                 keySpan.className = 'json-key';
+    //                 keySpan.textContent = `"${key}": `;
+    //                 row.appendChild(keySpan);
+
+    //                 const valSpan = document.createElement('span');
+    //                 let type = typeof value;
+    //                 if (value === null) type = 'null';
+                    
+    //                 valSpan.className = json-${type}; 
+    //                 // Add quotes if it's a string, otherwise just show the value
+    //                 valSpan.textContent = (type === 'string') ? "${value}" : String(value);
+                    
+    //                 row.appendChild(valSpan);
+    //                 propertiesDiv.appendChild(row);
+    //             });
+    //         } else {
+    //             // This handles cases where the item itself isn't an object
+    //             const row = document.createElement('div');
+    //             row.className = 'json-item';
+    //             row.textContent = Value: ${String(item)};
+    //             propertiesDiv.appendChild(row);
+    //         }
+
+    //         details.appendChild(propertiesDiv);
+    //         return details;
+    //     }
+
+    //     // --- Main logic for displayFlatCollection ---
+        
+    //     if (Array.isArray(dataToRender)) {
+    //         // 'data' is an ARRAY of flat objects
+    //         dataToRender.forEach((item, index) => {
+    //             container.appendChild(
+    //                 createItemElement(item, Item [${index}])
+    //             );
+    //         });
+    //     } else if (typeof dataToRender === 'object' && dataToRender !== null) {
+    //         // 'data' is a SINGLE flat object (like your movie list)
+    //         container.appendChild(
+    //             createItemElement(dataToRender, "Collection Object")
+    //         );
+    //     } else {
+    //         // This is the error you were seeing, now with the correct type
+    //         container.innerHTML = <p style='color: #ff5353;'>Error: Data is not a valid object or array (Type: ${typeof dataToRender}).</img.;
+    //     }
+    // }
+
+    // // --- 3. Call the function ---
+    // // We call our renderer, passing it the correct 'collectionData' variable
+    // displayFlatCollection(collectionData, filesystemDiv);
 }
 
 async function deleteFile(object_id) {

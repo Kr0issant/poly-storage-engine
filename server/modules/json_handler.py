@@ -16,7 +16,11 @@ class JSONHandler():
         doc = self.db[collection].find_one({"_id":ObjectId(id)})
         if doc:
             doc["_id"] = str(doc["_id"])
-        return doc
+        return {
+            "title": collection,
+            "list": [doc],
+            "json_data": "json"
+        }
 
     def get_collection_dir(self):
         title = "Json Collections"
