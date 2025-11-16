@@ -12,6 +12,7 @@ body {
 
 .view-options {
     display: flex;
+    height: 10vh;
     justify-content: space-evenly;
     margin-bottom: 1rem;
     background-color: #F5EFE6;
