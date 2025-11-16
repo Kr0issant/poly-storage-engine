@@ -6,6 +6,7 @@ from bson.objectid import ObjectId
 from modules.search import Search
 import uuid
 
+MONGODB_URI = "mongodb://localhost:27017"
 
 app = FastAPI()
 
@@ -25,7 +26,7 @@ app.add_middleware(
 
 upload_tasks = dict()
 
-db = database.Database()
+db = database.Database(mongo_uri=MONGODB_URI)
 files:file_handler.FileHandler = db.files
 jsons:json_handler.JSONHandler = db.jsons
 

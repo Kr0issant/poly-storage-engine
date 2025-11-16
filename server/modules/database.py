@@ -6,7 +6,7 @@ import gridfs, filetype, json
 import traceback
 
 class Database(): # Maine Storage Class
-    def __init__(self, mongo_uri = "mongodb://localhost:27017/", db_name = "test1"):
+    def __init__(self, mongo_uri, db_name = "poly_storage_engine"):
         #Connect to Mongo DB and Setup Database and GridFS for Files
         self.client = MongoClient(mongo_uri)
         self.db = self.client[db_name]
