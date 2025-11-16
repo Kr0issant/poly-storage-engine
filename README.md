@@ -161,12 +161,11 @@ This system successfully implements all challenge requirements and adds several 
 
 -----
 ## Screenshots
-
-* ![Screenshot 1](screenshots/screenshot (1).png)
-* ![Screenshot 2](screenshots/screenshot (2).png)
-* ![Screenshot 3](screenshots/screenshot (3).png)
-* ![Screenshot 4](screenshots/screenshot (4).png)
-* ![Screenshot 5](screenshots/screenshot (5).png)
+  <img src="screenshots/screenshot (2).png" alt="Screenshot 2" width="500">
+  <img src="screenshots/screenshot (1).png" alt="Screenshot 1" width="500">
+  <img src="screenshots/screenshot (3).png" alt="Screenshot 3" width="500">
+  <img src="screenshots/screenshot (4).png" alt="Screenshot 4" width="500">
+  <img src="screenshots/screenshot (5).png" alt="Screenshot 5" width="500">
 
 -----
 
