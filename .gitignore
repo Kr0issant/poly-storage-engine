@@ -2,3 +2,5 @@
 __pycache__
 .vscode/
 sqlite/
+local_clip_cache/
+*:Zone.Identifier
