@@ -166,6 +166,7 @@ This system successfully implements all challenge requirements and adds several 
   <img src="screenshots/screenshot (3).png" alt="Screenshot 3" width="500">
   <img src="screenshots/screenshot (4).png" alt="Screenshot 4" width="500">
   <img src="screenshots/screenshot (5).png" alt="Screenshot 5" width="500">
+  <img src="screenshots/screenshot (6).png" alt="Screenshot 6" width="500">
 
 -----
 
