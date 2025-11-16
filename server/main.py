@@ -117,10 +117,35 @@ async def get_table_path(table: str):
 
 
 # File Operations
-@app.get("/delete/{id}")
+@app.get("/delete/media/{id}")
 async def delete_file(id: str):
-    files.delete_file(ObjectId(id))
-    return
+    # files.delete_file(ObjectId(id))
+    db.files.bucket.delete(ObjectId(id))
+    return {"status": "success"}
+
+@app.get("/delete/sql/{table_name}")
+async def delete_table(table_name: str):
+    if table_name in db.sqls.list_tables():
+        db.sqls.cursor.execute(f"DROP TABLE {table_name}")
+        return {"status": "success"}
+    else:
+        return {"status": "failed to delete table"}
+
+@app.get("/delete/nosql/{collection_name}")
+async def delete_collection(collection_name: str):
+    try:
+        db.jsons.db[collection_name].drop()
+        return {"status": f"success"}
+    except Exception as e:
+        return {"status": f"failed to delete collection: {e}"}
+
+@app.get("/delete/nosql/{collection_name}/{document_id}")
+async def delete_document(collection_name, document_id: str):
+    try:
+        db.jsons.db[collection_name].delete_one({"_id": ObjectId(document_id)})
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": f"failed to delete document: {e}"}
 
 
 # Searching

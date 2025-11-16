@@ -199,7 +199,7 @@ searchForm.addEventListener("submit", async (event) => {
             const deleteFileBtn = document.createElement("button");
             deleteFileBtn.textContent = "Delete";
             deleteFileBtn.classList.add("delete-file-btn");
-            deleteFileBtn.addEventListener("click", async () => {await deleteFile(obj["url"].split("/").at(-1))});
+            deleteFileBtn.addEventListener("click", async () => {await deleteObject(obj["url"])});
 
             div.appendChild(deleteFileBtn);
             
@@ -299,7 +299,7 @@ async function getFilesystemAtUrl(url=currentUrl) {
                 const deleteFileBtn = document.createElement("button");
                 deleteFileBtn.textContent = "Delete";
                 deleteFileBtn.classList.add("delete-file-btn");
-                deleteFileBtn.addEventListener("click", async () => {await deleteFile(obj["url"].split("/").at(-1))});
+                deleteFileBtn.addEventListener("click", async () => {await deleteObject(obj["url"])});
 
                 div.appendChild(deleteFileBtn);
             }
@@ -340,8 +340,11 @@ function getJsonDiv(json, url = null) {
     const jsonDiv = document.createElement("div");
     jsonDiv.classList.add("json-div");
 
+    let add_delete_btn = false;
+
     if (url != null) {
         jsonDiv.addEventListener("dblclick", () => { getFilesystemAtUrl(url); });
+        add_delete_btn = true;
     }
 
     console.log("Corrected data to render:", json);
@@ -423,11 +426,30 @@ function getJsonDiv(json, url = null) {
         );
     }
 
+    if (add_delete_btn) {
+        const deleteFileBtn = document.createElement("button");
+        deleteFileBtn.textContent = "Delete";
+        deleteFileBtn.classList.add("delete-file-btn");
+        deleteFileBtn.addEventListener("click", async () => {await deleteObject(url)});
+
+        jsonDiv.appendChild(deleteFileBtn);
+    }
+
     return jsonDiv;
 }
 
-async function deleteFile(object_id) {
-    let response = await fetch(`${API_URL}/delete/${object_id}`);
+// async function deleteFile(object_id) {
+//     let response = await fetch(`${API_URL}/delete/media/${object_id}`);
+//     response = await response.json();
+//     getFilesystemAtUrl();
+// }
+
+async function deleteObject(url) {
+    if (currentUrl.split("/").at(0) == "media") {
+        url = "media/" + url.split("/").at(-1);
+    }
+    
+    let response = await fetch(`${API_URL}/delete/${url}`);
     response = await response.json();
     getFilesystemAtUrl();
 }
