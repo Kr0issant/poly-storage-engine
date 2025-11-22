@@ -1,6 +1,6 @@
 # Intelligent Multi-Modal Storage System (Poly-Storage Engine)
 
-A smart storage solution designed for the "Intelligent Multi-Modal Storage System" challenge. This project provides a single, unified frontend that intelligently accepts, analyzes, categorizes, and stores multiple types of data - whether it's media files (images, videos) or structured data (JSON) - into the most appropriate database (MongoDB/GridFS or SQLite) with zero user friction.
+A submission for the "Intelligent Multi-Modal Storage System" challenge. This project provides a single interface to upload media or JSON data. The backend analyzes the input and routes it to either MongoDB (GridFS/Collections) or SQLite based on the data structure and content.
 
 -----
 
@@ -8,78 +8,51 @@ A smart storage solution designed for the "Intelligent Multi-Modal Storage Syste
 
 > **Problem Statement 2: Intelligent Multi-Modal Storage System**
 >
-> Design a smart storage system with a single frontend interface that intelligently processes and stores any type of data.
+> Design a storage system with a single frontend interface that processes and stores different types of data.
 >
 > **Key Requirements:**
 >
->   * **For Media Files (Images/Videos):**
->       * Accept any media type through a unified frontend.
->       * Automatically analyze and categorize content.
->       * Place files with related existing media in appropriate directories.
->       * Create new directories for unique content categories.
->       * Organize subsequent related media into existing directories.
->   * **For Structured Data (JSON Objects):**
->       * Accept JSON objects through the same frontend.
->       * Intelligently determine whether SQL or NoSQL is more appropriate.
->       * Create the appropriate database entity automatically.
->       * For multiple JSON objects: analyze structure and generate complete schema with proper relationships.
->   * **Additional Considerations:**
->       * System should accept optional comments/metadata to aid in schema generation.
->       * Must handle both single and batch data inputs.
->       * Should maintain consistency and optimize for query performance.
+>   * **Media:** Accept files, categorize them, and organize them into directories.
+>   * **JSON:** Accept objects, determine if they fit SQL or NoSQL, and generate schemas/tables.
+>   * **General:** Handle batch inputs and metadata.
 
 -----
 
-## Key Features
+## Features
 
-This system successfully implements all challenge requirements and adds several key enhancements for a robust, user-friendly experience.
+### Media Handling (Images/Videos)
 
-### Intelligent Media Handling (Images/Videos)
+  * **Classification:** Uses the CLIP model (`openai/clip-vit-base-patch32`) for zero-shot classification on uploaded media.
+  * **File Organization:** Creates directories based on classification labels (e.g., `/dogs`, `/portraits`) and sorts files accordingly.
+  * **Metadata:** Saves classification tags as metadata.
+  * **Viewer:** Includes a UI for browsing directories and viewing media.
+  * **Offline Capability:** The CLIP model is cached locally after the first run.
 
-  * **AI-Powered Categorization:** Utilizes a lightweight but highly accurate **CLIP model (`openai/clip-vit-base-patch32`)** to perform zero-shot classification on all uploaded media.
-  * **Automatic Directory Management:** Automatically creates new directories (e.g., `/dogs`, `/beach_vacations`, `/technical_diagrams`) based on the AI's content analysis.
-  * **Smart Sorting:** Subsequent related media is automatically filed into the correct existing directory, keeping the storage clean and organized.
-  * **Metadata Generation:** The classification keywords (e.g., "dog", "park", "sunny") are saved as metadata with the file.
-  * **Integrated Media Viewer:** A clean UI for browsing directories, viewing images, and streaming videos directly.
+### JSON Handling
 
-  #### Note:
-  * No data leaves the server.
-  * The CLIP Image classification model is downloaded to cache and saved during the first run. After that, internet is optional as the entire system can run completely offline.
+  * **Routing Logic:**
+      * **MongoDB:** Used for nested or variable-schema objects.
+      * **SQLite:** Used for flat, structured data.
+  * **Schema Inference:** Analyzes incoming JSON batches to infer field types and relationships for SQL table creation.
 
-### Smart Data Handling (JSON)
+### Frontend & UI
 
-  * **Polyglot Persistence:** The system intelligently decides where to store incoming JSON data:
-      * **MongoDB (NoSQL):** Used for complex, nested, or variable-schema objects.
-      * **SQLite3 (SQL):** Used for flat, structured, relational data that fits a tabular model.
-  * **Automatic Schema Generation:** When multiple JSON objects are uploaded, the system analyzes their complete structure to infer field types, relationships, and constraints, automatically creating the new table or collection.
-  * Protections against SQL Injection Attacks
+  * **Upload:** Single drag-and-drop zone for all file types.
+  * **Visualization:** Renders directory trees for files, HTML tables for SQL data, and collapsible trees for JSON.
+  * **Search:** Filters files based on generated metadata keywords.
 
-### Unified Frontend & Rich UI
+### Backend
 
-  * **Single Upload Interface:** One simple drag-and-drop zone or file picker handles all data types.
-  * **Data-Aware UI:** The frontend intelligently renders stored data:
-      * **Files:** Displays directories, image thumbnails, and video player icons.
-      * **SQL Tables:** Renders data in a clean, sortable HTML table.
-      * **JSON Objects:** Displays nested JSON with collapsible/expandable fields for easy inspection.
-  * **Powerful Smart Search:** A global search bar allows users to find files by matching search queries against the metadata keywords.
-
-### High-Performance Asynchronous Backend
-
-  * **Non-Blocking Endpoints:** The entire backend is built asynchronously, allowing it to handle many simultaneous uploads and requests without blocking.
-  * **Real-Time Progress Tracking:** Every upload session (especially for batch uploads) is associated with a unique `task_id`.
-  * **Dual Progress Bars:** The frontend uses this `task_id` to poll the backend, showing:
-    1.  An **Upload Progress Bar** for the network transfer.
-    2.  A **Processing Progress Bar** for the classification, database insertion, etc.
+  * **Async Processing:** Built with FastAPI to handle concurrent uploads.
+  * **Status Tracking:** Uses a `task_id` system to poll upload status and processing status separately (network transfer vs. model analysis).
 
 -----
 
 ## Tech Stack
 
   * **Backend:** Python (FastAPI), Uvicorn
-  * **Databases:**
-      * **MongoDB:** For NoSQL JSON storage and GridFS for file/media storage.
-      * **SQLite3:** For relational SQL data storage.
-  * **AI/ML:** Hugging Face `transformers` & `torch` for the CLIP model.
+  * **Databases:** MongoDB (GridFS/NoSQL), SQLite3 (SQL)
+  * **ML:** Hugging Face `transformers` & `torch` (CLIP)
   * **Frontend:** HTML, CSS, JavaScript
 
 -----
